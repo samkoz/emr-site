@@ -15,9 +15,27 @@
   </head>
   <body>
     <div class="container">
+      <form action="{{ url_for('add_entry') }}" method=post>
+        <d1>
+          <dt>Smartphrase Description
+          <dd><input type=text size=20 name=description>
+          <dt>Smartphrase Template:
+          <dd><textarea name=text rows=5 cols40></textarea>
+          <dd><input type=submit value="Post Smartphrase">
+        </d1>
+      </form>
       <table class="table">
+        <tr>
+          <th>Entry</th>
+          <th>Description</th>
+          <th>Smartpharse Template</th>
+        </tr>
         {% for entry in entries %}
-          <h2>{{ entry['description'] }}</h2><li>{{ entry["template"]}}</li>
+          <tr>
+            <td>Place holder</td>
+            <td>{{ entry['description'] }}</td>
+            <td>{{ entry["template"]}}</td>
+          </tr>
         {% endfor %}
       </table>
     </div>
