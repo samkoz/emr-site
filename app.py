@@ -1,9 +1,20 @@
 from flask import Flask, render_template, redirect, url_for, request
+from flask_sqlalchemy import SQLAlchemy
 from entries import entries
 
 app = Flask(__name__)
-
 app.config.from_object(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:\\Users\\samko\\OneDrive\\Documents\\Programming\\Projects\\epic_smart_phrases\\test.db'
+db = SQLAlchemy(app)
+
+class Entry(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(), unique=False)
+    template = db.Column(db.Text(), unique=True)
+
+    def __init__(description, template):
+        self.description = description
+        self.template = template
 
 @app.route('/')
 def show_entries():
@@ -11,8 +22,10 @@ def show_entries():
 
 @app.route('/add', methods=['POST'])
 def add_entry():
-    entries.append({"description" : request.form['description'], "template" : request.form['template']})
-    print(entries)
+    entry = Entry(request.form['description'], request.form['template'])
+    print(entry)
+    db.session.add(entry)
+    db.session.commit()
     return redirect(url_for('show_entries'))
 
 
