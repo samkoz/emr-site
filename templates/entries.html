@@ -6,21 +6,24 @@
     <title>Flask Template Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
+
     <style type="text/css">
       .container {
         max-width: 500px;
         padding-top: 100px;
       }
+
     </style>
   </head>
   <body>
     <div class="container">
-      <form action="{{ url_for('add_entry') }}" method=post>
+      <form action="{{ url_for('add_entry') }}" method=post class="submission">
         <d1>
           <dt>Smartphrase Description
           <dd><input type=text size=20 name=description>
           <dt>Smartphrase Template:
-          <dd><textarea name=text rows=5 cols40></textarea>
+          <dd><textarea name=template rows=5 cols40></textarea>
           <dd><input type=submit value="Post Smartphrase">
         </d1>
       </form>
