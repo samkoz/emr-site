@@ -12,12 +12,16 @@ class Entry(db.Model):
     description = db.Column(db.String(), unique=False)
     template = db.Column(db.Text(), unique=True)
 
-    def __init__(description, template):
+    def __init__(self, description, template):
         self.description = description
         self.template = template
 
+    def __repr__(self):
+        return "Entry:\nDescription: {}\nTemplate: {}\n\n".format(self.description, self.template)
+
 @app.route('/')
 def show_entries():
+    entries = Entry.query.all()
     return render_template('entries.html', entries=entries)
 
 @app.route('/add', methods=['POST'])
