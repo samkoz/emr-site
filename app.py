@@ -1,9 +1,7 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy
-from entries import entries
 
 app = Flask(__name__)
-app.config.from_object(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:\\Users\\samko\\OneDrive\\Documents\\Programming\\Projects\\epic_smart_phrases\\test.db'
 db = SQLAlchemy(app)
 
@@ -17,7 +15,7 @@ class Entry(db.Model):
         self.template = template
 
     def __repr__(self):
-        return "Entry:\nDescription: {}\nTemplate: {}\n\n".format(self.description, self.template)
+        return "Entry:\nDescription: {}\nTemplate: {}\n".format(self.description, self.template)
 
 @app.route('/')
 def show_entries():
@@ -32,19 +30,11 @@ def add_entry():
     db.session.commit()
     return redirect(url_for('show_entries'))
 
+@app.route('/delete', methods=['POST'])
+def delete_entry():
+    Entry.query.delete()
+    db.session.commit()
+    flash("all entries deleted")
+    return redirect(url_for('show_entries'))
 
-
-# @app.route('/add', methods=['POST'])
-# def add_entry():
-#     # session was imported above
-#     if not session.get('logged_in'):
-#         abort(401)
-#     db = get_db()
-#     # what does request.form do?
-#     db.execute('insert into entries (title, text) values (?, ?)',
-#                  [request.form['title'], request.form['text']])
-#     db.commit()
-#     # what does this do?
-#     flash('New entry was successfully posted')
-#     # so you can redirect to the show_entries function, interesting
-#     return redirect(url_for('show_entries'))
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
