@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
-from factory import create_app
-from db import db, Entries, Users
+from .factory import create_app
+from .db import db, Entries, Users
 
 app = create_app(__name__)
 

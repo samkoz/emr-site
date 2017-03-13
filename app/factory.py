@@ -1,8 +1,8 @@
-from flask import Flask
-from db import db
 import os
-import config
-import secrets
+from flask import Flask
+from .db import db
+from . import config
+from . import secrets
 
 def get_env():
     try:

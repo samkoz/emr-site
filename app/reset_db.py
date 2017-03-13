@@ -1,5 +1,5 @@
-from app import app
-from db import db
+from .app import app
+from .db import db
 
 def reset_db():
     with app.app_context():
