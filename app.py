@@ -5,7 +5,12 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://newuser:password@localhost/epic_smart_phrases'
 db = SQLAlchemy(app)
 
-class Entry(db.Model):
+# this doesn't work
+# def auto_increment_reset(db):
+#     db.engine.execute("ALTER TABLE Entry AUTO_INCREMENT = 1;")
+
+class Entries(db.Model):
+    __tablename__ = "entries"
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(200), unique=False)
     template = db.Column(db.Text())
@@ -17,9 +22,16 @@ class Entry(db.Model):
     def __repr__(self):
         return "Entry:\nDescription: {}\nTemplate: {}\n".format(self.description, self.template)
 
+class Users(db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200))
+    institution = db.Column(db.String(200))
+    submissions =
+
 @app.route('/')
 def show_entries():
-    entries = Entry.query.all()
+    entries = Entries.query.all()
     return render_template('entries.html', entries=entries)
 
 @app.route('/add', methods=['POST'])
@@ -32,7 +44,7 @@ def add_entry():
 
 @app.route('/delete', methods=['POST'])
 def delete_entry():
-    Entry.query.delete()
+    Entries.query.delete()
     db.session.commit()
     flash("all entries deleted")
     return redirect(url_for('show_entries'))
