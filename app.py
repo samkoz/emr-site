@@ -2,13 +2,13 @@ from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:\\Users\\samko\\OneDrive\\Documents\\Programming\\Projects\\epic_smart_phrases\\test.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://newuser:password@localhost/epic_smart_phrases'
 db = SQLAlchemy(app)
 
 class Entry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(), unique=False)
-    template = db.Column(db.Text(), unique=True)
+    description = db.Column(db.String(200), unique=False)
+    template = db.Column(db.Text())
 
     def __init__(self, description, template):
         self.description = description
@@ -38,3 +38,6 @@ def delete_entry():
     return redirect(url_for('show_entries'))
 
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+
+if __name__ == '__main__':
+    db.create_all()
