@@ -1,8 +1,8 @@
 import os
 import pytest
 
-from project.factory import create_app
-from project.database import db as _db
+from app.factory import create_app
+from app.db import db as _db, Entry, User
 
 
 TESTDB = 'test_project.db'
@@ -13,10 +13,8 @@ TEST_DATABASE_URI = 'sqlite:///' + TESTDB_PATH
 @pytest.fixture(scope='session')
 def app(request):
     """Session-wide test `Flask` application."""
-    settings_override = {
-        'SQLALCHEMY_DATABASE_URI': TEST_DATABASE_URI
-    }
-    app = create_app(__name__, settings_override)
+    os.environ['ENV'] = 'Test'
+    app = create_app(__name__)
 
     # Establish an application context before running the tests.
     ctx = app.app_context()
@@ -32,12 +30,12 @@ def app(request):
 @pytest.fixture(scope='session')
 def db(app, request):
     """Session-wide test database."""
-    if os.path.exists(TESTDB_PATH):
-        os.unlink(TESTDB_PATH)
+    # if os.path.exists(TESTDB_PATH):
+    #     os.unlink(TESTDB_PATH)
 
     def teardown():
         _db.drop_all()
-        os.unlink(TESTDB_PATH)
+        # os.unlink(TESTDB_PATH)
 
     _db.app = app
     _db.create_all()
@@ -64,3 +62,7 @@ def session(db, request):
 
     request.addfinalizer(teardown)
     return session
+
+@pytest.fixture
+def client(app):
+    return app.test_client()

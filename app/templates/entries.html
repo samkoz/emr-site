@@ -6,28 +6,53 @@
     <title>Flask Template Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static', filename='style.css') }}">
 
     <style type="text/css">
       .container {
         max-width: 1000x;
-        padding-top: 100px;
+        padding-top: 10px;
+      }
+      .title {
+        text-align:center
       }
 
+      td {
+        white-space:pre;
+      }
+
+      #entry_table {
+        width : 70%;
+        float : left;
+      }
+      #user_table {
+        width: 30%;
+        float : left
+      }
+      .delete_button {
+        clear:both;
+      }
+      .text_submit {
+        white_space: pre-wrap;
+      }
     </style>
+
   </head>
   <body>
+    <div class="title">
+      <h1>EMR Smartphrase Repository</h1>
+    </div>
     <div class="container">
-      <form action="{{ url_for('add_entry') }}" method=post class="submission">
+      <form action="{{ url_for('.add_entry') }}" method=post class="submission">
         <d1>
           <dt>Smartphrase Description
-          <dd><input type=text size=20 name=description>
+          <dd><input class=text_submit type=text size=20 name=description>
           <dt>Smartphrase Template:
-          <dd><textarea name=template rows=5 cols40></textarea>
+          <dd><textarea class=text_submit name=template rows=5 cols=40></textarea>
           <dd><input type=submit value="Post Smartphrase">
         </d1>
       </form>
-      <table class="table">
+      <table class="table" id=entry_table>
         <tr>
           <th>Entry</th>
           <th>Description</th>
@@ -41,12 +66,31 @@
           </tr>
         {% endfor %}
       </table>
-      <form action="{{ url_for('delete_entry') }}" method=post class="delete">
+
+      <table class="table" id="user_table">
+        <tr>
+          <th>User</th>
+          <th>Name</th>
+          <th>Institution</th>
+          <th>Submissions</th>
+        </tr>
+        {% for user in users %}
+          <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user['name'] }}</td>
+            <td>{{ user["institution"]}}</td>
+            <td>{{ user["submissions"]}}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    <div class="delete_button">
+      <form action="{{ url_for('.delete_entry') }}" method=post class="delete">
         <input type="submit" value="Delete All">
       </form>
       {% for message in get_flashed_messages() %}
         <div class=flash>{{ message }}</div>
       {% endfor %}
+    </div>
     </div>
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
