@@ -11,7 +11,7 @@ class Entry(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
 
     def __repr__(self):
-        return "Entry:\nDescription: {}\nTemplate: {}\n".format(self.description, self.template)
+        return "Entry: <description> {}, <template> {}".format(self.description, self.template)
 
 class User(db.Model):
     __tablename__ = "users"
@@ -19,6 +19,9 @@ class User(db.Model):
     name = db.Column(db.String(200))
     institution = db.Column(db.String(200))
     submissions = db.relationship('Entry', order_by=Entry.id, backref=db.backref('user'))
+
+    def __repr__(self):
+        return "User: <name> {}, <institution> {}".format(self.name, self.institution)
 
     @staticmethod
     def num_submissions(self):
