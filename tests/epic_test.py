@@ -1,4 +1,4 @@
-from .fixtures import db, app, session, client
+from tests.fixtures import db, app, session, client
 from flask import url_for
 from app.db import User, Entry
 
@@ -12,8 +12,8 @@ def test_route(app, db, session, client):
     assert res.status_code == 200
 
 def test_relationship(db, session):
-    user = Users(name="Sam", institution="UofM")
-    entry = Entries(description="Smarty", template="template", user=user)
+    user = User(name="Sam", institution="UofM")
+    entry = Entry(description="Smarty", template="template", user=user)
 
     print(db.session.execute('show tables').fetchall())
     print(db.session.execute('select * from entries').fetchall())
