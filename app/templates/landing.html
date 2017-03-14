@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block content %}
+  <h2>Options</h2>
+  <form action="{{ url_for('.show_entries') }}" method=get>
+    <input type=submit value="Show entries">
+  </form>
+  <form action="{{ url_for('.show_log_in') }}" method=get>
+    <input type=submit value="Log in">
+  </form>
+  <form action="{{ url_for('.show_sign_up') }}" method="get">
+    <input type=submit value="Sign up">
+{% endblock %}
+
+
+
+
+<!--
+Want a sign in option
+  If signin, redirect to signin screen
+Want a view option
+  If view, thne redirect to show entries
+-->
+
+<!-- <form action="{{ url_for('.add_entry') }}" method=post class="submission">
+  <d1>
+    <dt>Smartphrase Description
+    <dd><input class=text_submit type=text size=20 name=description>
+    <dt>Smartphrase Template:
+    <dd><textarea class=text_submit name=template rows=5 cols=40></textarea>
+    <dd><input type=submit value="Post Smartphrase">
+  </d1>
+</form> -->

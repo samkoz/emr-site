@@ -1,5 +1,26 @@
-.submission {
-  width: 50%;
-  margin-left: auto;
-  margin-right: auto;
+.container {
+  max-width: 100%;
+  padding-top: 10px;
+}
+
+h1 {
+  text-align:center;
+  color: red;
+}
+
+td {
+  white-space:pre;
+}
+
+#entry_table {
+  width : 50%;
+  float : left;
+}
+
+.delete_button {
+  clear:both;
+}
+
+.text_submit {
+  white_space: pre-wrap;
 }
