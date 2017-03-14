@@ -3,30 +3,25 @@ from .db import db, Entry, User
 
 routes = Blueprint('routes', __name__, template_folder='templates')
 
-# signed_up_users = [user.name for user in User.query.all()]
-# def update_user
-
 @routes.route('/')
 def show_landing():
+    session['logged_in'] = False
+    # can't fucking connect to this
     print(url_for('static', filename='styles.css'))
     return render_template('landing.html')
 
 @routes.route('/log_in', methods=['GET', 'POST'])
 def show_log_in():
-    # # test:
-    # user = User(name="Sam", institution="UofMN")
-    # db.session.add(user)
-    # db.session.commit()
-    # users = db.session.query(User.name).all()
-    # signed_up_users = [user[0] for user in users]
-    # print(signed_up_users)
-    # print("Sam" in signed_up_users)
-    # User.query.delete()
-    # db.session.commit()
     current_users = [user[0] for user in db.session.query(User.name).all()]
     if request.method == "POST":
-        if request.form['username'] in current_users:
+        username = request.form['username']
+        if username in current_users:
             session['logged_in'] = True
+            user = User.query.filter(User.name == username).one()
+
+            # assigning the object gives an error
+            session["user"] = username
+
             return redirect(url_for("routes.show_entries"))
         else:
             flash("you need to sign up")
@@ -50,6 +45,7 @@ def show_sign_up():
             db.session.commit()
             flash("sign up successful")
             session["logged_in"] = True
+            session["user"] = new_user.name
             return redirect(url_for("routes.show_entries"))
 
         else:
@@ -63,22 +59,19 @@ def show_entries():
     entries = Entry.query.all()
     if session['logged_in'] == True:
         print("loggin status: ", True)
-
         return render_template('entries_with_add.html', entries=entries)
     else:
         print(False)
     return render_template('entries.html', entries=entries)
 
-@routes.route('/add_entries')
-def show_add_entry():
-    return render_template('add_entries.html')
-
 @routes.route('/add', methods=['POST'])
 def add_entry():
     template =  request.form['template']
     description = request.form['description']
+    user = User.query.filter(User.name == session['user']).one()
+    print(user)
     if template and description:
-        entry = Entry(description=request.form['description'], template=request.form['template'])
+        entry = Entry(description=request.form['description'], template=request.form['template'], user=user)
         db.session.add(entry)
         db.session.commit()
     else:

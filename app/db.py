@@ -10,6 +10,8 @@ class Entry(db.Model):
     template = db.Column(db.Text())
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
 
+    #user = db.relationship("User", back_populates="submissions")
+
     def __repr__(self):
         return "Entry: <description> {}, <template> {}".format(self.description, self.template)
 

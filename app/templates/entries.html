@@ -1,16 +1,19 @@
 {% extends "layout.html" %}
 {% block content %}
+  {% block add %}{% endblock %}
   <table class="table" id=entry_table>
     <tr>
       <th>Entry</th>
       <th>Description</th>
       <th>Smartpharse Template</th>
+      <th>Created by</th>
     </tr>
     {% for entry in entries %}
       <tr>
         <td>{{ entry.id }}</td>
         <td>{{ entry['description'] }}</td>
         <td>{{ entry["template"]}}</td>
+        <td>{{ entry.user.name }}</td>
       </tr>
     {% endfor %}
   </table>
