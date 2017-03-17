@@ -3,8 +3,10 @@ from .db import db
 
 def reset_db():
     with app.app_context():
+        print("DB reset!")
         db.drop_all()
         db.create_all()
 
+# run with: python -m reset_db FROM parent module
 if __name__ == '__main__':
     reset_db()
