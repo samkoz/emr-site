@@ -10,6 +10,12 @@ def show_landing():
     print(url_for('static', filename='styles.css'))
     return render_template('landing.html')
 
+@routes.route('/log_out')
+def log_out():
+    session['logged_in'] = False
+    flash("you were logged out")
+    return redirect(url_for('routes.show_landing'))
+
 @routes.route('/log_in', methods=['GET', 'POST'])
 def show_log_in():
     current_users = [user[0] for user in db.session.query(User.name).all()]
