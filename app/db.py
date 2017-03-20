@@ -2,7 +2,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-# change this to singular
 class Entry(db.Model):
     __tablename__ = "entries"
     id = db.Column(db.Integer, primary_key=True)
@@ -23,6 +22,5 @@ class User(db.Model):
     def __repr__(self):
         return "User: <name> {}, <institution> {}".format(self.name, self.institution)
 
-    @staticmethod
     def num_submissions(self):
-        return(len(self.submissions))
+        return len(self.submissions)

@@ -3,37 +3,13 @@
   <head>
     <title>EMR Smart Phrases</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-
-    <style type="text/css">
-      .container {
-        max-width: 100%;
-        padding-top: 10px;
-      }
-      h1 {
-        text-align:center;
-        color: red;
-      }
-
-      td {
-        white-space:pre;
-      }
-
-      #entry_table {
-        width : 100%;
-        float : left;
-      }
-
-      .delete_button {
-        clear:both;
-      }
-
-      .text_submit {
-        white_space: pre-wrap;
-      }
-    </style>
-
   </head>
   <body>
     <nav class="navbar navbar-default">
@@ -45,10 +21,12 @@
         {% if session['logged_in'] %}
           <li class="active"><a href="{{ url_for('.show_entries') }}">Show Entries</a></li>
           <li><a href="{{ url_for('.add_entry') }}">Add Entries</a></li>
+          <li><a href="{{ url_for('.show_users') }}">Show Users</a><li>
           <li><a href="{{ url_for('.log_out') }}">Log out</a></li>
         {% endif %}
         {% if not session['logged_in'] %}
           <li><a href="{{ url_for('.show_entries') }}">Show Entries</a></li>
+          <li><a href="{{ url_for('.show_users') }}">Show Users</a><li>
           <li><a href="{{ url_for('.show_log_in') }}">Log in</a></li>
           <li><a href="{{ url_for('.show_sign_up') }}">Sign up</a></li>
         {% endif %}
@@ -61,7 +39,5 @@
         <div class=flash>{{ message }}</div>
       {% endfor %}
     </div>
-    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
   </body>
 </html>

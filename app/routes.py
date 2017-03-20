@@ -90,3 +90,8 @@ def delete_entry():
     db.session.commit()
     flash("all entries deleted")
     return redirect(url_for('routes.show_entries'))
+
+@routes.route('/users', methods=['GET'])
+def show_users():
+    users = User.query.all()
+    return render_template('users.html', users=users)
