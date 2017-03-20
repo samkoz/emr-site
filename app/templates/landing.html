@@ -1,14 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
-  <h2>Options</h2>
-  <form action="{{ url_for('.show_entries') }}" method=get>
-    <input type=submit value="Show entries">
-  </form>
-  <form action="{{ url_for('.show_log_in') }}" method=get>
-    <input type=submit value="Log in">
-  </form>
-  <form action="{{ url_for('.show_sign_up') }}" method="get">
-    <input type=submit value="Sign up">
+  <h1>Welcome to the World's only online EMR repository!</h1>
+  <p> Create a profile and sign in to add entries to the site
+    so you can share smartphrases with your colleagues.</p>
+  <p>Browse our site to find useful smartphrases that will
+    boost your productivity!
+  </p>
 {% endblock %}
 
 

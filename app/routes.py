@@ -63,26 +63,26 @@ def show_sign_up():
 @routes.route('/show_entries')
 def show_entries():
     entries = Entry.query.all()
-    if session['logged_in'] == True:
-        print("loggin status: ", True)
-        return render_template('entries_with_add.html', entries=entries)
-    else:
-        print(False)
     return render_template('entries.html', entries=entries)
 
-@routes.route('/add', methods=['POST'])
+@routes.route('/add', methods=['GET', 'POST'])
 def add_entry():
-    template =  request.form['template']
-    description = request.form['description']
-    user = User.query.filter(User.name == session['user']).one()
-    print(user)
-    if template and description:
-        entry = Entry(description=request.form['description'], template=request.form['template'], user=user)
-        db.session.add(entry)
-        db.session.commit()
+    if request.method == "POST":
+        template =  request.form['template']
+        description = request.form['description']
+        user = User.query.filter(User.name == session['user']).one()
+        print(user)
+        if template and description:
+            entry = Entry(description=request.form['description'], template=request.form['template'], user=user)
+            db.session.add(entry)
+            db.session.commit()
+            flash("entry added")
+        else:
+            flash("enter a description and template")
+        return redirect(url_for('routes.show_entries'))
     else:
-        flash("enter a description and template")
-    return redirect(url_for('routes.show_entries'))
+        return render_template('add_entries.html')
+
 
 @routes.route('/delete', methods=['POST'])
 def delete_entry():

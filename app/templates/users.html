@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block content %}
+  <table class="table" id=entry_table>
+    <tr>
+      <th>Username</th>
+      <th>Institution</th>
+      <th>Submissions</th>
+      <th>Number of Submissions</th>
+    </tr>
+    {% for user in users %}
+      <tr>
+        <td>{{ user.name }} </td>
+        <td>{{ user.institution }} </td>
+        <td>{{ user.submissions }} </td>
+        <td>{{ user.num_submissions }}</dt>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

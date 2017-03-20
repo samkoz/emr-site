@@ -33,22 +33,33 @@
         white_space: pre-wrap;
       }
     </style>
-  </head>
 
+  </head>
   <body>
-    <div class="title">
-      <h1>EMR Smartphrase Repository</h1>
-    </div>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="{{ url_for('.show_landing') }}">EMR Smartphrase Repository</a>
+        </div>
+        <ul class="nav navbar-nav">
+        {% if session['logged_in'] %}
+          <li class="active"><a href="{{ url_for('.show_entries') }}">Show Entries</a></li>
+          <li><a href="{{ url_for('.add_entry') }}">Add Entries</a></li>
+          <li><a href="{{ url_for('.log_out') }}">Log out</a></li>
+        {% endif %}
+        {% if not session['logged_in'] %}
+          <li><a href="{{ url_for('.show_entries') }}">Show Entries</a></li>
+          <li><a href="{{ url_for('.show_log_in') }}">Log in</a></li>
+          <li><a href="{{ url_for('.show_sign_up') }}">Sign up</a></li>
+        {% endif %}
+        </ul>
+      </div>
+    </nav>
     <div class="container">
       {% block content %}{% endblock %}
       {% for message in get_flashed_messages() %}
         <div class=flash>{{ message }}</div>
       {% endfor %}
-      {% if session['logged_in'] %}
-        <form action="{{ url_for('.log_out') }}">
-          <input type=submit value="Log out">
-        </form>
-      {% endif %}
     </div>
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
