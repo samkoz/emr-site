@@ -1,5 +1,6 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, Blueprint, session
+from flask import Flask, render_template, redirect, url_for, request, flash, Blueprint, session, json
 from .db import db, Entry, User
+from sqlalchemy import desc
 
 routes = Blueprint('routes', __name__, template_folder='templates')
 
@@ -59,7 +60,7 @@ def show_sign_up():
 
 @routes.route('/show_entries')
 def show_entries():
-    entries = Entry.query.all()
+    entries = Entry.query.order_by(desc(Entry.id)).all()
     return render_template('entries.html', entries=entries)
 
 @routes.route('/add', methods=['GET', 'POST'])
@@ -92,9 +93,18 @@ def show_users():
     users = User.query.all()
     return render_template('users.html', users=users)
 
-@routes.route('/profile')
+@routes.route('/view_profile', methods=['GET', 'POST'])
 def view_profile():
-    username = session['user']
-    entries = User.query.filter(User.name == username).one().submissions
-    entries = enumerate(entries, 1)
-    return render_template('user_profile.html', entries=entries)
+    # this will delete entries if delete button is pressed
+    if request.method == "POST":
+        print("success");
+        entry_id = int(request.form["entry_id"])
+        Entry.query.filter(Entry.id == entry_id).delete()
+        db.session.commit()
+        return json.dumps({'status':'OK'});
+    else:
+        # otherwise, it will display all their entries
+        username = session['user']
+        entries = User.query.filter(User.name == username).one().submissions
+        entries = enumerate(entries, 1)
+        return render_template('user_profile.html', entries=entries)

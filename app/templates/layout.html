@@ -20,7 +20,7 @@
         </div>
         <ul class="nav navbar-nav">
         {% if session['logged_in'] %}
-          <li class="active"><a href="{{ url_for('.show_entries') }}">Show Entries</a></li>
+          <li><a href="{{ url_for('.show_entries') }}">Show Entries</a></li>
           <li><a href="{{ url_for('.add_entry') }}">Add Entries</a></li>
           <li><a href="{{ url_for('.view_profile') }}">My Profile</a></li>
           <li><a href="{{ url_for('.show_users') }}">Show Users</a><li>
