@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Hello {{ session['user'] }}</h1>
+<p>Here are your entries</p>
+<table class="table" id=entry_table>
+  <tr>
+    <th>Entry #</th>
+    <th>Description</th>
+    <th>Smartpharse Template</th>
+  </tr>
+  {% for entry in entries %}
+    <tr id="{{ entry[1].id }}">
+      <td>{{ entry[0] }}</td>
+      <td>{{ entry[1]['description'] }}</td>
+      <td>{{ entry[1]["template"]}}</td>
+      <td><button class="delete_button" id="{{ entry[1].id }}">Delete</button><td>
+    </tr>
+  {% endfor %}
+</table>
+{% endblock %}

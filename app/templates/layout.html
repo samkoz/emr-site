@@ -9,7 +9,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <!-- Latest compiled JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}"></script>
   </head>
   <body>
     <nav class="navbar navbar-default">
@@ -21,6 +22,7 @@
         {% if session['logged_in'] %}
           <li class="active"><a href="{{ url_for('.show_entries') }}">Show Entries</a></li>
           <li><a href="{{ url_for('.add_entry') }}">Add Entries</a></li>
+          <li><a href="{{ url_for('.view_profile') }}">My Profile</a></li>
           <li><a href="{{ url_for('.show_users') }}">Show Users</a><li>
           <li><a href="{{ url_for('.log_out') }}">Log out</a></li>
         {% endif %}

@@ -5,9 +5,6 @@ routes = Blueprint('routes', __name__, template_folder='templates')
 
 @routes.route('/')
 def show_landing():
-    session['logged_in'] = False
-    # can't fucking connect to this
-    print(url_for('static', filename='styles.css'))
     return render_template('landing.html')
 
 @routes.route('/log_out')
@@ -83,7 +80,6 @@ def add_entry():
     else:
         return render_template('add_entries.html')
 
-
 @routes.route('/delete', methods=['POST'])
 def delete_entry():
     Entry.query.delete()
@@ -95,3 +91,10 @@ def delete_entry():
 def show_users():
     users = User.query.all()
     return render_template('users.html', users=users)
+
+@routes.route('/profile')
+def view_profile():
+    username = session['user']
+    entries = User.query.filter(User.name == username).one().submissions
+    entries = enumerate(entries, 1)
+    return render_template('user_profile.html', entries=entries)
