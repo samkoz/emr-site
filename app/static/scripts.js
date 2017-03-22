@@ -23,6 +23,23 @@ $(document).ready(function(){
         error: function(error) {
           console.log(error);
         }
+      });
+  });
+
+  $(".save.button").click(function(){
+    console.log("button clicked");
+    var entry_id = this.id;
+
+    $.ajax({
+      url: '/show_entries',
+      data: {"entry_id" : entry_id},
+      type: 'POST',
+      success: function(response){
+        console.log(response);
+      },
+      error: function(error) {
+        console.log(error);
+      }
     });
   });
 });

@@ -38,7 +38,6 @@ def show_sign_up():
         institution = request.form['institution']
         current_users = [user[0] for user in db.session.query(User.name).all()]
 
-        # why coudln't i do if not username and institution: (like below)
         if  len(username) == 0 or len(institution) == 0:
             flash('enter both a username and institution')
             return render_template('sign_up.html')
@@ -58,10 +57,21 @@ def show_sign_up():
     else:
         return render_template('sign_up.html')
 
-@routes.route('/show_entries')
+@routes.route('/show_entries', methods=['GET', 'POST'])
+# will need to include order here somehow...
 def show_entries():
-    entries = Entry.query.order_by(desc(Entry.id)).all()
-    return render_template('entries.html', entries=entries)
+    if request.method == "POST":
+        entry_id = int(request.form["entry_id"])
+
+        entry = Entry.query().filter(Entry.id == entry_id)
+        entry.num_saves += 1
+        db.session.commit()
+        return json.dumps({'status':'OK'});
+    else:
+        entries = Entry.query.order_by(desc(Entry.id)).all()
+        print(entries)
+        entries = enumerate(entries, 1)
+        return render_template('entries.html', entries=entries)
 
 @routes.route('/add', methods=['GET', 'POST'])
 def add_entry():
@@ -80,13 +90,6 @@ def add_entry():
         return redirect(url_for('routes.show_entries'))
     else:
         return render_template('add_entries.html')
-
-@routes.route('/delete', methods=['POST'])
-def delete_entry():
-    Entry.query.delete()
-    db.session.commit()
-    flash("all entries deleted")
-    return redirect(url_for('routes.show_entries'))
 
 @routes.route('/users', methods=['GET'])
 def show_users():

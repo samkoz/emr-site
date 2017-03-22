@@ -3,17 +3,25 @@
   {% block add %}{% endblock %}
   <table class="table" id=entry_table>
     <tr>
-      <th>Entry</th>
+      <th></th>
+      <th>Submission time</th>
       <th>Description</th>
       <th>Smartpharse Template</th>
       <th>Created by</th>
+      <th>Number of times saved</th>
     </tr>
     {% for entry in entries %}
       <tr>
-        <td>{{ entry.id }}</td>
-        <td>{{ entry['description'] }}</td>
-        <td>{{ entry["template"]}}</td>
-        <td>{{ entry.user.name }}</td>
+        <td> {{ entry[0] }}</td>
+        <td>{{ entry[1].time_created }}
+        <td>{{ entry[1]['description'] }}</td>
+        <td>{{ entry[1]["template"] }}</td>
+        <td>{{ entry[1].user.name }}</td>
+        <td>{{ entry[1].user_saves }}</td>
+        <td id="{{ entry[1].id }}">
+          <button type="button" class="btn btn-default save button" id="{{ entry[1].id }}">Save</button>
+        </td>
+
       </tr>
     {% endfor %}
   </table>
