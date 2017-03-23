@@ -46,3 +46,13 @@ def test_current_user(db, session):
 
     current_users = [user[0] for user in db.session.query(User.name).all()]
     assert user.name in current_users
+
+def test_many_many_relationship(db, session):
+    user = User(name="sam", institution="UofM")
+    entry = Entry(description="desc", template="temp", user_saves=user)
+
+    session.add_all([user, entry])
+    session.commit()
+
+    assert entry in user.saved_entries
+    assert user in entry.user_saves

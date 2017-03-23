@@ -1,20 +1,39 @@
 {% extends "layout.html" %}
 {% block content %}
 <h1>Hello {{ session['user'] }}</h1>
-<p>Here are your entries</p>
-<table class="table" id=entry_table>
-  <tr>
-    <th>Entry #</th>
-    <th>Description</th>
-    <th>Smartpharse Template</th>
-  </tr>
-  {% for entry in entries %}
+<h2>Submitted Entries</h2>
+  <table class="table" id=entry_table>
+    <tr>
+      <th>Entry #</th>
+      <th>Description</th>
+      <th>Smartpharse Template</th>
+    </tr>
+    {% for entry in user_entries %}
+      <tr id="{{ entry[1].id }}">
+        <td>{{ entry[0] }}</td>
+        <td>{{ entry[1]['description'] }}</td>
+        <td>{{ entry[1]["template"]}}</td>
+        <td><button class="delete_button user_entries" id="{{ entry[1].id }}">Delete</button><td>
+      </tr>
+    {% endfor %}
+  </table>
+<br>
+<h2>Saved Entries</h2>
+  <table class="table" id=save_table>
+    <tr>
+      <th>Entry #</th>
+      <th>Description</th>
+      <th>Smartpharse Template</th>
+    </tr>
+    {% for entry in saved_entries %}
     <tr id="{{ entry[1].id }}">
       <td>{{ entry[0] }}</td>
       <td>{{ entry[1]['description'] }}</td>
       <td>{{ entry[1]["template"]}}</td>
-      <td><button class="delete_button" id="{{ entry[1].id }}">Delete</button><td>
+      <td><button class="delete_button saved_entries" id="{{ entry[1].id }}">Delete</button><td>
     </tr>
-  {% endfor %}
-</table>
+    {% endfor %}
+  </table>
+
+
 {% endblock %}

@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
   {% block add %}{% endblock %}
+  <p id="error_message"><p>
   <table class="table" id=entry_table>
     <tr>
       <th></th>
@@ -17,8 +18,8 @@
         <td>{{ entry[1]['description'] }}</td>
         <td>{{ entry[1]["template"] }}</td>
         <td>{{ entry[1].user.name }}</td>
-        <td>{{ entry[1].user_saves }}</td>
-        <td id="{{ entry[1].id }}">
+        <td class="num_saves" id="{{ entry[1].id }}">{{ entry[1].num_user_saves() }}</td>
+        <td id="{{ entry[1].id }} save_column">
           <button type="button" class="btn btn-default save button" id="{{ entry[1].id }}">Save</button>
         </td>
 

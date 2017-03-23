@@ -3,3 +3,5 @@ __pycache__/
 practice/
 secrets.py
 .cache/
+.ipynb_checkpoints/
+sqlalchemy_ORM_tutorial.ipynb

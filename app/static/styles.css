@@ -12,7 +12,7 @@ td {
   white-space:pre-wrap;
 }
 
-#entry_table {
+#entry_table, #save_table{
   width : 90%;
 }
 

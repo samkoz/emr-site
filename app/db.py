@@ -3,17 +3,34 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+
+association_table = db.Table('assocation_table',
+                db.Column('user_id', db.Integer, db.ForeignKey('users.id', ondelete="CASCADE", onupdate="CASCADE")),
+                db.Column('entry_id', db.Integer, db.ForeignKey('entries.id', ondelete="CASCADE", onupdate="CASCADE")),
+                )
+
 class Entry(db.Model):
     __tablename__ = "entries"
     id = db.Column(db.Integer, primary_key=True)
     time_created = db.Column(db.DateTime, default=datetime.now)
     description = db.Column(db.String(200), unique=False)
     template = db.Column(db.Text())
-    user_saves = db.Column(db.Integer, default=0)
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete="CASCADE", onupdate="CASCADE"))
 
     def __repr__(self):
-        return "Entry: <id: {}, time_created: {}, description: {}, template: {}, user_id: {}".format(self.id, self.time_created, self.description, self.template, self.user_id)
+        return_string = "Entry Object:\n"
+        var_dict = self.__dict__
+        for k in var_dict.keys():
+            if k == "user_saves":
+                return_string += "{}: {}\n".format(k, len(self.user_saves))
+            elif k == "user":
+                 return_string += "{}: {}\n".format(k, self.user.id)
+            elif k != "_sa_instance_state":
+                return_string += "{}: {}\n".format(k, var_dict[k])
+        return return_string
+
+    def num_user_saves(self):
+        return len(self.user_saves)
 
 class User(db.Model):
     __tablename__ = "users"
@@ -21,12 +38,23 @@ class User(db.Model):
     name = db.Column(db.String(200))
     institution = db.Column(db.String(200))
     time_enrolled = db.Column(db.DateTime, default=datetime.now)
-    saved_entries = db.Column(db.PickleType())
+    saved_entries = db.relationship("Entry", secondary=association_table, backref=db.backref("user_saves"))
     submissions = db.relationship('Entry', order_by=Entry.id, backref=db.backref('user'))
 
-
     def __repr__(self):
-        return """User: <id: {}name: {}, institution: {}, submissions: {}, time_enrolled: {}>""".format(self.id, self.name, self.institution, self.submissions, self.time_enrolled)
+        return_string = "User Object:\n"
+        var_dict = self.__dict__
+        for k in var_dict.keys():
+            if k =="saved_entries":
+                return_string += "{}: {}\n".format(k, len(self.saved_entries))
+            elif k == "submissions":
+                return_string += "{}: {}\n".format(k, len(self.submissions))
+            elif k != "_sa_instance_state":
+                return_string += "{}: {}\n".format(k, var_dict[k])
+        return return_string
 
     def num_submissions(self):
         return len(self.submissions)
+
+    def num_saved_entries(self):
+        return len(self.saved_entries)

@@ -62,14 +62,32 @@ def show_sign_up():
 def show_entries():
     if request.method == "POST":
         entry_id = int(request.form["entry_id"])
+        print(entry_id)
+        entry = Entry.query.filter(Entry.id == entry_id).one()
+        user = User.query.filter(User.name == session['user']).one()
+        print(entry)
+        print(user)
+        message = ""
+        if entry in user.submissions:
+            message = "You cannot save an entry you have submitted"
+            status = "Error"
+        elif entry in user.saved_entries:
+            message = "You have already saved this entry"
+            status = "Error"
+        else:
+            if entry.num_user_saves == 0:
+                entry.user_saves = [user]
+            else:
+                entry.user_saves.append(user)
 
-        entry = Entry.query().filter(Entry.id == entry_id)
-        entry.num_saves += 1
-        db.session.commit()
-        return json.dumps({'status':'OK'});
+            db.session.add_all([user, entry])
+            db.session.commit()
+            status = 'OK'
+
+        return json.dumps({'status': status, "data" : [message, entry.num_user_saves()]});
+
     else:
         entries = Entry.query.order_by(desc(Entry.id)).all()
-        print(entries)
         entries = enumerate(entries, 1)
         return render_template('entries.html', entries=entries)
 
@@ -101,13 +119,30 @@ def view_profile():
     # this will delete entries if delete button is pressed
     if request.method == "POST":
         print("success");
-        entry_id = int(request.form["entry_id"])
-        Entry.query.filter(Entry.id == entry_id).delete()
-        db.session.commit()
+        entry_id = int(request.form['entry_id'])
+        entry_type = request.form['entry_type']
+        if entry_type == 'submission':
+            Entry.query.filter(Entry.id == entry_id).delete()
+            # will need to remove it from all other users saves...?
+            # how to handle updates / edits?
+            db.session.commit()
+        elif entry_type == 'saved':
+            user = User.query.filter(User.name == session['user']).one()
+            print(user)
+            saved_entries = user.saved_entries
+            saved_entries = [entry for entry in saved_entries if entry.id != entry_id]
+            user.saved_entries = saved_entries
+            db.session.add(user)
+            db.session.commit()
+        else:
+            raise KeyError
         return json.dumps({'status':'OK'});
     else:
-        # otherwise, it will display all their entries
+        # otherwise, it will display all their submitted and saved entries
         username = session['user']
-        entries = User.query.filter(User.name == username).one().submissions
-        entries = enumerate(entries, 1)
-        return render_template('user_profile.html', entries=entries)
+        user = User.query.filter(User.name == username).one()
+        user_entries = user.submissions
+        saved_entries = user.saved_entries
+        user_entries = enumerate(user_entries, 1)
+        saved_entries = enumerate(saved_entries, 1)
+        return render_template('user_profile.html', user_entries=user_entries, saved_entries=saved_entries)
