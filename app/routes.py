@@ -1,6 +1,8 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, Blueprint, session, json
-from .db import db, Entry, User
 from sqlalchemy import desc
+from .db import db, Entry, User
+from .forms import LogginForm
+
 
 routes = Blueprint('routes', __name__, template_folder='templates')
 
@@ -16,21 +18,21 @@ def log_out():
 
 @routes.route('/log_in', methods=['GET', 'POST'])
 def show_log_in():
-    current_users = [user[0] for user in db.session.query(User.name).all()]
-    if request.method == "POST":
-        username = request.form['username']
+    name = None
+    form = LogginForm()
+    if form.validate_on_submit():
+        current_users = [user[0] for user in db.session.query(User.name).all()]
+        username = form.name.data
+        form.name.data = ""
         if username in current_users:
             session['logged_in'] = True
             user = User.query.filter(User.name == username).one()
-
-            # assigning the object gives an error
             session["user"] = username
-
+            flash("sign in successful")
             return redirect(url_for("routes.show_entries"))
         else:
-            print("not signed up!")
             flash("you need to sign up")
-    return render_template('log_in.html')
+    return render_template('log_in.html', form=form)
 
 @routes.route('/sign_up', methods=['GET', 'POST'])
 def show_sign_up():
