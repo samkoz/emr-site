@@ -114,8 +114,8 @@ def show_users():
     users = User.query.all()
     return render_template('users.html', users=users)
 
-@routes.route('/view_profile', methods=['GET', 'POST'])
-def view_profile():
+@routes.route('/view_profile/<username>', methods=['GET', 'POST'])
+def view_profile(username):
     # this will delete entries if delete button is pressed
     if request.method == "POST":
         print("success");

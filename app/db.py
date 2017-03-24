@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask import url_for
 from datetime import datetime
 
 db = SQLAlchemy()
@@ -52,6 +53,10 @@ class User(db.Model):
             elif k != "_sa_instance_state":
                 return_string += "{}: {}\n".format(k, var_dict[k])
         return return_string
+
+    @property
+    def url(self):
+        return url_for('.view_profile', username=self.name)
 
     def num_submissions(self):
         return len(self.submissions)
