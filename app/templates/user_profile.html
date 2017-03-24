@@ -1,6 +1,5 @@
 {% extends "layout.html" %}
-{% block content %}
-{{ super() }}
+{% block page_content %}
 <h1>Hello {{ session['user'] }}</h1>
 <h2>Submitted Entries</h2>
   <table class="table" id=entry_table>
@@ -35,6 +34,4 @@
     </tr>
     {% endfor %}
   </table>
-
-
 {% endblock %}

@@ -1,8 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, Blueprint, session, json
 from sqlalchemy import desc
 from .db import db, Entry, User
-from .forms import LogginForm
-
+from .forms import LogginForm, SignUpForm
 
 routes = Blueprint('routes', __name__, template_folder='templates')
 
@@ -18,7 +17,7 @@ def log_out():
 
 @routes.route('/log_in', methods=['GET', 'POST'])
 def show_log_in():
-    name = None
+    username = None
     form = LogginForm()
     if form.validate_on_submit():
         current_users = [user[0] for user in db.session.query(User.name).all()]
@@ -27,38 +26,38 @@ def show_log_in():
         if username in current_users:
             session['logged_in'] = True
             user = User.query.filter(User.name == username).one()
-            session["user"] = username
+            session['user'] = username
             flash("sign in successful")
-            return redirect(url_for("routes.show_entries"))
+            return redirect(url_for("routes.view_profile", username=username))
         else:
             flash("you need to sign up")
+            # this prevents resubmitting the post request
+            return redirect(url_for("routes.show_log_in"))
     return render_template('log_in.html', form=form)
 
 @routes.route('/sign_up', methods=['GET', 'POST'])
 def show_sign_up():
-    if request.method == "POST":
-        username = request.form['username']
-        institution = request.form['institution']
+    username = None
+    form = SignUpForm()
+    if form.validate_on_submit():
+        username = form.name.data
+        institution = form.institution.data
         current_users = [user[0] for user in db.session.query(User.name).all()]
 
-        if  len(username) == 0 or len(institution) == 0:
-            flash('enter both a username and institution')
-            return render_template('sign_up.html')
-
-        elif username not in current_users:
+        if username not in current_users:
             new_user = User(name=username, institution=institution)
             db.session.add(new_user)
             db.session.commit()
             flash("sign up successful")
             session["logged_in"] = True
             session["user"] = new_user.name
-            return redirect(url_for("routes.show_entries"))
+            return redirect(url_for("routes.view_profile", username=username))
 
         else:
             flash("username already in database - choose something else")
-            return render_template('sign_up.html')
+            return redirect(url_for('routes.show_sign_up'))
     else:
-        return render_template('sign_up.html')
+        return render_template('sign_up.html', form=form)
 
 @routes.route('/show_entries', methods=['GET', 'POST'])
 # will need to include order here somehow...
