@@ -1,45 +1,38 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>EMR Smart Phrases</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <!-- Latest compiled JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='scripts.js') }}"></script>
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}"></script>
-  </head>
-  <body>
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="{{ url_for('.show_landing') }}">EMR Smartphrase Repository</a>
-        </div>
-        <ul class="nav navbar-nav">
-        {% if session['logged_in'] %}
-          <li><a href="{{ url_for('.show_entries') }}">Show Entries</a></li>
-          <li><a href="{{ url_for('.add_entry') }}">Add Entries</a></li>
-          <li><a href="{{ url_for('.view_profile', username=session['user']) }}">My Profile</a></li>
-          <li><a href="{{ url_for('.show_users') }}">Show Users</a><li>
-          <li><a href="{{ url_for('.log_out') }}">Log out</a></li>
-        {% endif %}
-        {% if not session['logged_in'] %}
-          <li><a href="{{ url_for('.show_entries') }}">Show Entries</a></li>
-          <li><a href="{{ url_for('.show_users') }}">Show Users</a><li>
-          <li><a href="{{ url_for('.show_log_in') }}">Log in</a></li>
-          <li><a href="{{ url_for('.show_sign_up') }}">Sign up</a></li>
-        {% endif %}
-        </ul>
-      </div>
-    </nav>
-    <div class="container">
-      {% block content %}{% endblock %}
-      {% for message in get_flashed_messages() %}
-        <div class=flash>{{ message }}</div>
-      {% endfor %}
+{% extends "bootstrap/base.html" %}
+{% block navbar %}
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="{{ url_for('.show_landing') }}">EMR Smartphrase Repository</a>
     </div>
-  </body>
-</html>
+    <ul class="nav navbar-nav">
+    {% if session['logged_in'] %}
+      <li><a href="{{ url_for('.show_entries') }}">Show Entries</a></li>
+      <li><a href="{{ url_for('.add_entry') }}">Add Entries</a></li>
+      <li><a href="{{ url_for('.view_profile', username=session['user']) }}">My Profile</a></li>
+      <li><a href="{{ url_for('.show_users') }}">Show Users</a><li>
+      <li><a href="{{ url_for('.log_out') }}">Log out</a></li>
+    {% endif %}
+    {% if not session['logged_in'] %}
+      <li><a href="{{ url_for('.show_entries') }}">Show Entries</a></li>
+      <li><a href="{{ url_for('.show_users') }}">Show Users</a><li>
+      <li><a href="{{ url_for('.show_log_in') }}">Log in</a></li>
+      <li><a href="{{ url_for('.show_sign_up') }}">Sign up</a></li>
+    {% endif %}
+    </ul>
+  </div>
+</nav>
+{% endblock %}
+<div class="container">
+  {% block content %}{% endblock %}
+  {% for message in get_flashed_messages() %}
+    <div class=flash>{{ message }}</div>
+  {% endfor %}
+</div>
+
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript" src="{{ url_for('static', filename='scripts.js') }}"></script>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}"></link>
+{% endblock %}
