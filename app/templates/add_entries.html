@@ -1,12 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
-  <form action="{{ url_for('.add_entry') }}" method=post class="submission">
-    <d1>
-      <dt>Smartphrase Description
-      <dd><input class=text_submit type=text size=20 name=description>
-      <dt>Smartphrase Template:
-      <dd><textarea class=text_submit name=template rows=5 cols=40></textarea>
-      <dd><input type=submit value="Post Smartphrase">
-    </d1>
-  </form>
+{{ super() }}
+<form action="{{ url_for('.add_entry') }}" method=post class="submission">
+  <d1>
+    <dt>Smartphrase Description
+    <dd><input class=text_submit type=text size=20 name=description>
+    <dt>Smartphrase Template:
+    <dd><textarea class=text_submit name=template rows=5 cols=40></textarea>
+    <dd><input type=submit value="Post Smartphrase">
+  </d1>
+</form>
 {% endblock %}

@@ -28,6 +28,7 @@ def show_log_in():
 
             return redirect(url_for("routes.show_entries"))
         else:
+            print("not signed up!")
             flash("you need to sign up")
     return render_template('log_in.html')
 
