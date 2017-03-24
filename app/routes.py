@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, Blueprint, session, json
 from sqlalchemy import desc
 from .db import db, Entry, User
-from .forms import LogginForm, SignUpForm
+from .forms import LogginForm, SignUpForm, AddEntryForm
 
 routes = Blueprint('routes', __name__, template_folder='templates')
 
@@ -95,21 +95,20 @@ def show_entries():
 
 @routes.route('/add', methods=['GET', 'POST'])
 def add_entry():
-    if request.method == "POST":
-        template =  request.form['template']
-        description = request.form['description']
+    form = AddEntryForm()
+    if form.validate_on_submit():
+        description = form.description.data
+        template = form.template.data
+        # form.description.data = ''
+        # form.template.data = ''
         user = User.query.filter(User.name == session['user']).one()
-        print(user)
-        if template and description:
-            entry = Entry(description=request.form['description'], template=request.form['template'], user=user)
-            db.session.add(entry)
-            db.session.commit()
-            flash("entry added")
-        else:
-            flash("enter a description and template")
-        return redirect(url_for('routes.show_entries'))
+        entry = Entry(description=description, template=template, user=user)
+        db.session.add(entry)
+        db.session.commit()
+        flash("entry added")
+        return redirect(url_for('routes.add_entry'))
     else:
-        return render_template('add_entries.html')
+        return render_template('add_entries.html', form=form)
 
 @routes.route('/users', methods=['GET'])
 def show_users():

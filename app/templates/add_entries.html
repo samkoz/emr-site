@@ -1,12 +1,7 @@
 {% extends "layout.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}Add Entries{% endblock %}
 {% block page_content %}
-<form action="{{ url_for('.add_entry') }}" method=post class="submission">
-  <d1>
-    <dt>Smartphrase Description
-    <dd><input class=text_submit type=text size=20 name=description>
-    <dt>Smartphrase Template:
-    <dd><textarea class=text_submit name=template rows=5 cols=40></textarea>
-    <dd><input type=submit value="Post Smartphrase">
-  </d1>
-</form>
+<h1>Submit Smartphrases</h1>
+{{ wtf.quick_form(form) }}
 {% endblock %}
