@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
 {% block title %}Browse Smartphrases{% endblock %}
 {% block page_content %}
 {{ wtf.quick_form(form) }}
@@ -30,4 +31,10 @@
     </tr>
   {% endfor %}
 </table>
+<div class="pagination">
+  {% if search_query %}
+    {{ macros.pagination_widget(pagination, endpoint) }}
+  {% else %}
+    {{ macros.pagination_widget(pagination, endpoint) }}
+  {% endif %}
 {% endblock %}

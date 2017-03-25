@@ -102,14 +102,17 @@ def show_entries(search_query=None):
         return json.dumps({'status': status, "data" : [message, entry.num_user_saves]});
 
     else:
+        page = request.args.get('page', 1, type=int)
         if search_query:
-            entries = Entry.query.filter((Entry.description.contains(search_query)) | (Entry.template.contains(search_query))).all()
+            pagination = Entry.query.filter((Entry.description.contains(search_query)) | (Entry.template.contains(search_query))).paginate(page, per_page=30, error_out=False)
+            endpoint = '.show_entries/{}'.format(search_query)
         else:
-            entries = Entry.query.order_by(desc(Entry.id)).all()
-        # page = request.args('page', 1, type=int)
-        # pagination = Entry.query.order_by(Entry.time_created)
+            pagination = Entry.query.order_by(desc(Entry.id)).paginate(page, per_page=30, error_out=True)
+            endpoint = '.show_entries'
+        entries = pagination.items
         entries = enumerate(entries, 1)
-        return render_template('entries.html', entries=entries, form=form)
+
+        return render_template('entries.html', entries=entries, pagination=pagination, form=form, endpoint=endpoint)
 
 @routes.route('/add', methods=['GET', 'POST'])
 def add_entry():
@@ -139,6 +142,7 @@ def view_profile(username):
     if request.method == "POST":
         print("success");
         entry_id = int(request.form['entry_id'])
+
         entry_type = request.form['entry_type']
         if entry_type == 'submission':
             Entry.query.filter(Entry.id == entry_id).delete()
