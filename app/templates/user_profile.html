@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block page_content %}
-<h1>Hello {{ session['user'] }}</h1>
+<h1>{{ username }}</h1>
 <h2>Submitted Entries</h2>
   <table class="table" id=entry_table>
     <tr>
@@ -13,7 +13,9 @@
         <td>{{ entry[0] }}</td>
         <td>{{ entry[1]['description'] }}</td>
         <td>{{ entry[1]["template"]}}</td>
+        {% if current %}
         <td><button class="delete_button user_entries" id="{{ entry[1].id }}">Delete</button><td>
+        {% endif %}
       </tr>
     {% endfor %}
   </table>
@@ -30,7 +32,9 @@
       <td>{{ entry[0] }}</td>
       <td>{{ entry[1]['description'] }}</td>
       <td>{{ entry[1]["template"]}}</td>
+      {% if current %}
       <td><button class="delete_button saved_entries" id="{{ entry[1].id }}">Delete</button><td>
+      {% endif %}
     </tr>
     {% endfor %}
   </table>

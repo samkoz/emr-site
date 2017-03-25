@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, Blueprint, session, json
+from flask_login import login_user, logout_user, current_user
 from sqlalchemy import desc
 from .db import db, Entry, User
 from .forms import LogginForm, SignUpForm, AddEntryForm
@@ -11,7 +12,7 @@ def show_landing():
 
 @routes.route('/log_out')
 def log_out():
-    session['logged_in'] = False
+    logout_user()
     flash("you were logged out")
     return redirect(url_for('routes.show_landing'))
 
@@ -20,26 +21,18 @@ def show_log_in():
     username = None
     form = LogginForm()
     if form.validate_on_submit():
-        current_users = [user[0] for user in db.session.query(User.name).all()]
         username = form.name.data
         password = form.password.data
-
         form.name.data = ""
-        password = form.password.data
-
-        if username.lower() in current_users:
-            user = User.query.filter(User.name == username).one()
-            if user.verify_password(password):
-                session['user'] = username
-                flash("sign in successful")
-                return redirect(url_for("routes.view_profile", username=username))
-            else:
-                flash("incorrect password")
-                return redirect(url_for("routes.show_log_in"))
-
+        form.password.data = ""
+        user = User.query.filter(User.name == username.lower()).first()
+        if user is not None and user.verify_password(password):
+            session['user'] = username
+            flash("sign in successful")
+            login_user(user, form.remember_me.data)
+            return redirect(url_for("routes.view_profile", username=username))
         else:
-            flash("you need to sign up")
-            # this prevents resubmitting the post request
+            flash("incorrect username or password. sign up if you have not signed up!")
             return redirect(url_for("routes.show_log_in"))
     return render_template('log_in.html', form=form)
 
@@ -51,15 +44,13 @@ def show_sign_up():
         username = form.name.data
         institution = form.institution.data
         password = form.password.data
-        current_users = [user[0] for user in db.session.query(User.name).all()]
-        username_lower = username.lower()
-        if username_lower not in current_users:
+        current_user = User.query.filter(User.name == username.lower()).first()
+        if not current_user:
             new_user = User(name=username, institution=institution, password=password)
             db.session.add(new_user)
             db.session.commit()
             flash("sign up successful")
-            session["logged_in"] = True
-            session["user"] = new_user.name
+            login_user(new_user)
             return redirect(url_for("routes.view_profile", username=username))
 
         else:
@@ -147,10 +138,20 @@ def view_profile(username):
         return json.dumps({'status':'OK'});
     else:
         # otherwise, it will display all their submitted and saved entries
-        username = session['user']
-        user = User.query.filter(User.name == username).one()
+        if current_user.is_anonymous or current_user.name != username:
+            current = False
+            user = User.query.filter(User.name == username).one()
+            username = user.name
+            if username[-1] == 's':
+                username += "' profile"
+            else:
+                username += "'s profile"
+        else:
+            user = current_user
+            current = True
+            username = 'Your profile'
         user_entries = user.submissions
         saved_entries = user.saved_entries
         user_entries = enumerate(user_entries, 1)
         saved_entries = enumerate(saved_entries, 1)
-        return render_template('user_profile.html', user_entries=user_entries, saved_entries=saved_entries)
+        return render_template('user_profile.html',user_entries=user_entries, saved_entries=saved_entries, username=username, current=current)

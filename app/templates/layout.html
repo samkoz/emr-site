@@ -6,14 +6,13 @@
       <a class="navbar-brand" href="{{ url_for('.show_landing') }}">EMR Smartphrase Repository</a>
     </div>
     <ul class="nav navbar-nav">
-    {% if session.get('logged_in') %}
+    {% if current_user.is_authenticated %}
       <li><a href="{{ url_for('.show_entries') }}">Show Entries</a></li>
       <li><a href="{{ url_for('.add_entry') }}">Add Entries</a></li>
       <li><a href="{{ url_for('.view_profile', username=session['user']) }}">My Profile</a></li>
       <li><a href="{{ url_for('.show_users') }}">Show Users</a><li>
       <li><a href="{{ url_for('.log_out') }}">Log out</a></li>
-    {% endif %}
-    {% if not session.get('logged_in') %}
+      {% else %}
       <li><a href="{{ url_for('.show_entries') }}">Show Entries</a></li>
       <li><a href="{{ url_for('.show_users') }}">Show Users</a><li>
       <li><a href="{{ url_for('.show_log_in') }}">Log in</a></li>

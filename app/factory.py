@@ -2,7 +2,7 @@ import os
 from flask import Flask
 from flask import render_template
 from flask_login import LoginManager
-from .db import db
+from .db import db, User
 from . import config
 from . import secrets
 from .routes import routes
@@ -54,5 +54,9 @@ def create_app(name):
     @routes.app_errorhandler(500)
     def internal_server_error(e):
         return render_template('500.html'), 500
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     return app

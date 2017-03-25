@@ -12,7 +12,7 @@ $(document).ready(function(){
       $("tr#" + entry_id).remove()
 
       $.ajax({
-        url: '/view_profile',
+        url: 'url_for(routes.view_profile)',
         data: {"entry_id" : entry_id, "entry_type" : entry_type},
         type: 'POST',
         success: function(response){

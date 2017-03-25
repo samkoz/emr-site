@@ -20,9 +20,11 @@
       <td><a href="{{ entry[1].user.url }}" class="profile_redirect">{{ entry[1].user.name }}</td>
 
       <td class="num_saves" id="{{ entry[1].id }}">{{ entry[1].num_user_saves() }}</td>
+      {% if current_user.is_authenticated %}
       <td id="{{ entry[1].id }} save_column">
         <button type="button" class="btn btn-default save button" id="{{ entry[1].id }}">Save</button>
       </td>
+      {% endif %}
     </tr>
   {% endfor %}
 </table>
