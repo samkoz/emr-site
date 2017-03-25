@@ -36,7 +36,8 @@ class Entry(db.Model):
 class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(200))
+    name = db.Column(db.String(200), unique=True)
+    password = db.Column(db.String(200), default="password")
     institution = db.Column(db.String(200), default=None)
     time_enrolled = db.Column(db.DateTime, default=datetime.utcnow)
     saved_entries = db.relationship("Entry", secondary=association_table, backref=db.backref("user_saves"))

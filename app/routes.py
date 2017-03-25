@@ -40,12 +40,13 @@ def show_sign_up():
     username = None
     form = SignUpForm()
     if form.validate_on_submit():
-        username = form.name.data
+        username = form.name.data.lower()
         institution = form.institution.data
+        password = form.password.data
         current_users = [user[0] for user in db.session.query(User.name).all()]
 
         if username not in current_users:
-            new_user = User(name=username, institution=institution)
+            new_user = User(name=username, institution=institution, password=password)
             db.session.add(new_user)
             db.session.commit()
             flash("sign up successful")
@@ -124,8 +125,6 @@ def view_profile(username):
         entry_type = request.form['entry_type']
         if entry_type == 'submission':
             Entry.query.filter(Entry.id == entry_id).delete()
-            # will need to remove it from all other users saves...?
-            # how to handle updates / edits?
             db.session.commit()
         elif entry_type == 'saved':
             user = User.query.filter(User.name == session['user']).one()
