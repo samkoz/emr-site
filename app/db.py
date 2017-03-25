@@ -32,6 +32,18 @@ class Entry(db.Model):
                 return_string += "{}: {}\n".format(k, var_dict[k])
         return return_string
 
+    def generate_fake(count=100):
+        from random import seed, randint
+        import forgery_py
+        seed()
+        user_count = User.query.count()
+        for i in range(count):
+            u = User.query.offset(randint(0, 10)).first()
+            p = Entry(description=forgery_py.lorem_ipsum.title(words_quantity=4), template=forgery_py.lorem_ipsum.sentences(randint(5, 10)), time_created=forgery_py.date.date(True), user=u)
+            db.session.add(p)
+            db.session.commit()
+
+    @property
     def num_user_saves(self):
         return len(self.user_saves)
 
@@ -56,6 +68,21 @@ class User(UserMixin, db.Model):
             elif k != "_sa_instance_state":
                 return_string += "{}: {}\n".format(k, var_dict[k])
         return return_string
+
+    @staticmethod
+    def generate_fake(count=100):
+        from sqlalchemy.exc import IntegrityError
+        from random import seed
+        import forgery_py
+
+        seed()
+        for i in range(count):
+            u = User(name=forgery_py.internet.user_name(True), password=forgery_py.lorem_ipsum.word(), institution=forgery_py.address.city(), time_enrolled=forgery_py.date.date(True))
+            db.session.add(u)
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
 
     @property
     def url(self):

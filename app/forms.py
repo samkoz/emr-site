@@ -21,3 +21,9 @@ class AddEntryForm(Form):
     description = StringField('Smartphrase Description:', validators=[Required()])
     template = TextAreaField('Smartphrase Template:', validators=[Required()])
     submit = SubmitField('Submit Smartphrase')
+
+class SearchForm(Form):
+    search_query = StringField('Search:', validators=[Required()])
+    most_saved = BooleanField('Most saved')
+    most_recent = BooleanField('Most recent')
+    submit = SubmitField('Search')

@@ -2,8 +2,9 @@
 class Prod:
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://newuser:password@/production?unix_socket=/cloudsql/smartphrase-app:us-central1:smartphrase-app'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
+
 # need to run the command below to launch the proxy
-# cloud_sql_proxy -instances=smartphrase-app:us-central1:smartphrase-app=tcp:3307 -credential_file="C:\Users\samko\OneDrive\Credentials\smartphrase-app-1ab89adacc8b.json" &
+# cloud_sql_proxy -instances=smartphrase-app:us-central1:smartphrase-app=tcp:3307 -credential_file="C:\Users\samko\OneDrive\Credentials\smartphrase-app-1ab89adacc8b.json"
 # mysql -u root -p --host 127.0.0.1 --port 3307
 class Cloud_local:
     SQLALCHEMY_DATABASE_URI = "mysql+pymysql://newuser:password@127.0.0.1:3307/production"

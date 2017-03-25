@@ -2,13 +2,19 @@ from flask import Flask, render_template, redirect, url_for, request, flash, Blu
 from flask_login import login_user, logout_user, current_user
 from sqlalchemy import desc
 from .db import db, Entry, User
-from .forms import LogginForm, SignUpForm, AddEntryForm
+from .forms import LogginForm, SignUpForm, AddEntryForm, SearchForm
 
 routes = Blueprint('routes', __name__, template_folder='templates')
 
 @routes.route('/')
 def show_landing():
     return render_template('landing.html')
+
+@routes.route('/test_entries')
+def gen_test_entries():
+    Entry.generate_fake()
+    return redirect(url_for('routes.show_entries'))
+
 
 @routes.route('/log_out')
 def log_out():
@@ -52,7 +58,6 @@ def show_sign_up():
             flash("sign up successful")
             login_user(new_user)
             return redirect(url_for("routes.view_profile", username=username))
-
         else:
             flash("username already in database - choose something else")
             return redirect(url_for('routes.show_sign_up'))
@@ -60,8 +65,16 @@ def show_sign_up():
         return render_template('sign_up.html', form=form)
 
 @routes.route('/show_entries', methods=['GET', 'POST'])
-# will need to include order here somehow...
-def show_entries():
+@routes.route('/show_entries/<search_query>', methods=['GET', 'POST'])
+def show_entries(search_query=None):
+    form = SearchForm()
+    entry_list = []
+    if form.validate_on_submit():
+        search_query = form.search_query.data
+        most_saved = form.most_saved.data
+        most_recent = form.most_recent.data
+        return redirect(url_for('routes.show_entries', search_query=search_query))
+
     if request.method == "POST":
         entry_id = int(request.form["entry_id"])
         print(entry_id)
@@ -86,12 +99,17 @@ def show_entries():
             db.session.commit()
             status = 'OK'
 
-        return json.dumps({'status': status, "data" : [message, entry.num_user_saves()]});
+        return json.dumps({'status': status, "data" : [message, entry.num_user_saves]});
 
     else:
-        entries = Entry.query.order_by(desc(Entry.id)).all()
+        if search_query:
+            entries = Entry.query.filter((Entry.description.contains(search_query)) | (Entry.template.contains(search_query))).all()
+        else:
+            entries = Entry.query.order_by(desc(Entry.id)).all()
+        # page = request.args('page', 1, type=int)
+        # pagination = Entry.query.order_by(Entry.time_created)
         entries = enumerate(entries, 1)
-        return render_template('entries.html', entries=entries)
+        return render_template('entries.html', entries=entries, form=form)
 
 @routes.route('/add', methods=['GET', 'POST'])
 def add_entry():
