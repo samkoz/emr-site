@@ -22,13 +22,21 @@ def show_log_in():
     if form.validate_on_submit():
         current_users = [user[0] for user in db.session.query(User.name).all()]
         username = form.name.data
+        password = form.password.data
+
         form.name.data = ""
-        if username in current_users:
-            session['logged_in'] = True
+        password = form.password.data
+
+        if username.lower() in current_users:
             user = User.query.filter(User.name == username).one()
-            session['user'] = username
-            flash("sign in successful")
-            return redirect(url_for("routes.view_profile", username=username))
+            if user.verify_password(password):
+                session['user'] = username
+                flash("sign in successful")
+                return redirect(url_for("routes.view_profile", username=username))
+            else:
+                flash("incorrect password")
+                return redirect(url_for("routes.show_log_in"))
+
         else:
             flash("you need to sign up")
             # this prevents resubmitting the post request
@@ -40,12 +48,12 @@ def show_sign_up():
     username = None
     form = SignUpForm()
     if form.validate_on_submit():
-        username = form.name.data.lower()
+        username = form.name.data
         institution = form.institution.data
         password = form.password.data
         current_users = [user[0] for user in db.session.query(User.name).all()]
-
-        if username not in current_users:
+        username_lower = username.lower()
+        if username_lower not in current_users:
             new_user = User(name=username, institution=institution, password=password)
             db.session.add(new_user)
             db.session.commit()

@@ -1,6 +1,5 @@
 {% extends "layout.html" %}
 {% block page_content %}
-{% block title %}{{ session.get('user') }}'s Profile'{% endblock %}
 <h1>Hello {{ session['user'] }}</h1>
 <h2>Submitted Entries</h2>
   <table class="table" id=entry_table>
