@@ -96,6 +96,7 @@ def show_entries():
                 entry.user_saves = [user]
             else:
                 entry.user_saves.append(user)
+            entry.num_user_saves += 1
 
             db.session.add_all([user, entry])
             db.session.commit()
@@ -112,8 +113,12 @@ def show_entries():
         page = request.args.get('page', 1, type=int)
 
         if q:
-            pagination = Entry.query.filter((Entry.description.contains(q)) \
-                | (Entry.template.contains(q))).paginate(page, per_page=30, error_out=False)
+            entries = Entry.query.filter((Entry.description.contains(q)) \
+                | (Entry.template.contains(q)))
+            if search_order == "submission_time":
+                pagination = entries.order_by(desc(Entry.time_created)).paginate(page, per_page=30, error_out=False)
+            elif search_order == 'saves':
+                pagination = entries.order_by(desc(Entry.num_user_saves)).paginate(page, per_page=30, error_out=False)
         else:
             pagination = Entry.query.order_by(desc(Entry.time_created)).paginate(page, per_page=30, error_out=True)
         endpoint = '.show_entries'
@@ -122,7 +127,10 @@ def show_entries():
 
         # preserve form values
         form.search_query.data = q
-        form.search_order.data = search_order
+        if search_order:
+            form.search_order.data = search_order
+        else:
+            form.search_order.data = 'submission_time'
         form.specialty.data = specialty
         form.note_part.data = note_part
         form.note_type.data = note_type
@@ -157,18 +165,20 @@ def view_profile(username):
     if request.method == "POST":
         print("success");
         entry_id = int(request.form['entry_id'])
-
         entry_type = request.form['entry_type']
+        entry = Entry.query.filter(Entry.id == entry_id)
         if entry_type == 'submission':
-            Entry.query.filter(Entry.id == entry_id).delete()
+            entry.delete()
             db.session.commit()
         elif entry_type == 'saved':
             user = User.query.filter(User.name == session['user']).one()
+            entry = entry.one()
             print(user)
             saved_entries = user.saved_entries
             saved_entries = [entry for entry in saved_entries if entry.id != entry_id]
             user.saved_entries = saved_entries
-            db.session.add(user)
+            entry.num_user_saves -= 1
+            db.session.add_all([user, entry])
             db.session.commit()
         else:
             raise KeyError

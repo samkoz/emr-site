@@ -19,6 +19,7 @@ class Entry(db.Model):
     description = db.Column(db.String(200), unique=False)
     template = db.Column(db.Text())
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete="CASCADE", onupdate="CASCADE"))
+    num_user_saves = db.Column(db.Integer(), default=0)
 
     def __repr__(self):
         return_string = "Entry Object:\n"
@@ -42,10 +43,6 @@ class Entry(db.Model):
             p = Entry(description=forgery_py.lorem_ipsum.title(words_quantity=4), template=forgery_py.lorem_ipsum.sentences(randint(5, 10)), time_created=forgery_py.date.date(True), user=u)
             db.session.add(p)
             db.session.commit()
-
-    @property
-    def num_user_saves(self):
-        return len(self.user_saves)
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
