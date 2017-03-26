@@ -1,19 +1,25 @@
-.container {
-  max-width: 100%;
-  padding-top: 10px;
-}
-
 h1 {
   text-align:center;
   color: red;
 }
 
 td {
-  white-space:pre-wrap;
+  word-break: break-all;
 }
 
-#entry_table, #save_table{
-  width : 90%;
+#search_options_specialty {
+  float: left;
+  width: 33%;
+}
+
+#search_options_note_part {
+  float: left;
+  width: 33%;
+}
+
+#search_options_note_type {
+  float: left;
+  width: 33%;
 }
 
 .text_submit {

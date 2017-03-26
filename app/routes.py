@@ -70,9 +70,12 @@ def show_entries():
     entry_list = []
     if form.validate_on_submit():
         search_query = form.search_query.data
-        most_saved = form.most_saved.data
-        most_recent = form.most_recent.data
-        return redirect(url_for('routes.show_entries', q=search_query))
+        search_order = form.search_order.data
+        specialty = form.specialty.data
+        note_type = form.note_type.data
+        note_part = form.note_part.data
+        return redirect(url_for('routes.show_entries', q=search_query, search_order=search_order,
+            specialty=specialty, note_type=note_type, note_part=note_part))
 
     if request.method == "POST":
         entry_id = int(request.form["entry_id"])
@@ -101,16 +104,28 @@ def show_entries():
         return json.dumps({'status': status, "data" : [message, entry.num_user_saves]});
 
     else:
-        page = request.args.get('page', 1, type=int)
         q = request.args.get('q')
+        search_order = request.args.get('search_order')
+        specialty = request.args.getlist('specialty')
+        note_part = request.args.getlist('note_part')
+        note_type = request.args.getlist('note_type')
+        page = request.args.get('page', 1, type=int)
+
         if q:
             pagination = Entry.query.filter((Entry.description.contains(q)) \
                 | (Entry.template.contains(q))).paginate(page, per_page=30, error_out=False)
         else:
-            pagination = Entry.query.order_by(desc(Entry.id)).paginate(page, per_page=30, error_out=True)
+            pagination = Entry.query.order_by(desc(Entry.time_created)).paginate(page, per_page=30, error_out=True)
         endpoint = '.show_entries'
         entries = pagination.items
-        entries = enumerate(entries, 1)
+        entries = entries
+
+        # preserve form values
+        form.search_query.data = q
+        form.search_order.data = search_order
+        form.specialty.data = specialty
+        form.note_part.data = note_part
+        form.note_type.data = note_type
 
         return render_template('entries.html', entries=entries, pagination=pagination, form=form, q=q, endpoint=endpoint)
 
@@ -174,8 +189,8 @@ def view_profile(username):
             username = 'Your profile'
         user_entries = user.submissions
         saved_entries = user.saved_entries
-        user_entries = enumerate(user_entries, 1)
-        saved_entries = enumerate(saved_entries, 1)
+        user_entries = user_entries
+        saved_entries = saved_entries
         return render_template('user_profile.html',
             user_entries=user_entries,
             saved_entries=saved_entries,

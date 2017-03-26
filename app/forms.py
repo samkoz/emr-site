@@ -1,10 +1,8 @@
 from flask_wtf import Form
 from flask import request
-from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField
-from wtforms.validators import Required, EqualTo
-
-def get_q():
-    return request.args.get('q', '')
+from wtforms import StringField, SubmitField, TextAreaField, \
+    PasswordField, BooleanField, RadioField, SelectMultipleField
+from wtforms.validators import Required, EqualTo, Length
 
 class LogginForm(Form):
     name = StringField('Username:', validators=[Required()])
@@ -27,7 +25,24 @@ class AddEntryForm(Form):
     submit = SubmitField('Submit Smartphrase')
 
 class SearchForm(Form):
-    search_query = StringField('Search:', validators=[Required()], default=get_q)
-    most_saved = BooleanField('Most saved')
-    most_recent = BooleanField('Most recent')
+    search_order = RadioField('Order search results by', choices=[
+        ('submission_time', 'Most recent'),
+        ('saves', 'Most saved')], validators=[Required()])
+    search_query = StringField('Search', validators=[Required()])
+    specialty = SelectMultipleField('Specialty', choices=[
+        ('IM', 'Internal Medicine'),
+        ('Peds', 'Pediatrics'),
+        ('GenSurg', 'General Surgery')])
+    note_type = SelectMultipleField('Note Type', choices=[
+        ('HandP', 'H&P'),
+        ('Prog', 'Progress Note'),
+        ('Proc', 'Procedure Note'),
+        ('Op', 'Operation Note')
+        ])
+    note_part = SelectMultipleField('Note Component', choices=[
+        ('HPI', 'HPI'),
+        ('ROS', 'ROS'),
+        ('SocHx', 'Social History'),
+        ('Meds', 'Medications')
+    ])
     submit = SubmitField('Search')

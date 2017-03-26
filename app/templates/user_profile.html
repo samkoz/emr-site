@@ -4,17 +4,15 @@
 <h2>Submitted Entries</h2>
   <table class="table" id=entry_table>
     <tr>
-      <th>Entry #</th>
       <th>Description</th>
       <th>Smartpharse Template</th>
     </tr>
     {% for entry in user_entries %}
-      <tr id="{{ entry[1].id }}">
-        <td>{{ entry[0] }}</td>
-        <td>{{ entry[1]['description'] }}</td>
-        <td>{{ entry[1]["template"]}}</td>
+      <tr id="{{ entry.id }}">
+        <td>{{ entry['description'] }}</td>
+        <td>{{ entry["template"]}}</td>
         {% if current %}
-        <td><button class="delete_button user_entries" id="{{ entry[1].id }}">Delete</button><td>
+        <td><button class="delete_button user_entries" id="{{ entry.id }}">Delete</button><td>
         {% endif %}
       </tr>
     {% endfor %}
@@ -23,17 +21,15 @@
 <h2>Saved Entries</h2>
   <table class="table" id=save_table>
     <tr>
-      <th>Entry #</th>
       <th>Description</th>
       <th>Smartpharse Template</th>
     </tr>
     {% for entry in saved_entries %}
-    <tr id="{{ entry[1].id }}">
-      <td>{{ entry[0] }}</td>
-      <td>{{ entry[1]['description'] }}</td>
-      <td>{{ entry[1]["template"]}}</td>
+    <tr id="{{ entry.id }}">
+      <td>{{ entry['description'] }}</td>
+      <td>{{ entry["template"]}}</td>
       {% if current %}
-      <td><button class="delete_button saved_entries" id="{{ entry[1].id }}">Delete</button><td>
+      <td><button class="delete_button saved_entries" id="{{ entry.id }}">Delete</button><td>
       {% endif %}
     </tr>
     {% endfor %}

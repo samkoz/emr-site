@@ -20,10 +20,11 @@
 {% for user in users %}
 <td>{{ user.name }}</td>
 <td>{{ user.institution }} </td>
-<td>{% for submission in user.submissions %}<span style="font-weight:bold">Entry Description: </span><span>{{ submission.description }}</span>
-<span style="font-weight:bold">Smartphrase Template: </span><span>{{ submission.template }}</span>
-<br>
-{% endfor %}
+<td>
+  {% for submission in user.submissions %}
+  <span style="font-weight:bold">Entry Description: </span><span>{{ submission.description }}</span><br>
+  <span style="font-weight:bold">Smartphrase Template: </span><span>{{ submission.template }}</span><br><br>
+  {% endfor %}
 </td>
 <td>{{ user.num_submissions() }}</td>
 <td>{{ user.num_saved_entries() }}<td>
