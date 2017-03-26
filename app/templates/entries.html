@@ -26,15 +26,12 @@
       {% if current_user.is_authenticated %}
       <td id="{{ entry[1].id }} save_column">
         <button type="button" class="btn btn-default save button" id="{{ entry[1].id }}">Save</button>
+        <button type="button" class="btn btn-default copy button" id="{{ entry[1].id}}">Copy</button>
       </td>
       {% endif %}
     </tr>
   {% endfor %}
 </table>
 <div class="pagination">
-  {% if search_query %}
-    {{ macros.pagination_widget(pagination, endpoint) }}
-  {% else %}
-    {{ macros.pagination_widget(pagination, endpoint) }}
-  {% endif %}
+  {{ macros.pagination_widget(pagination, endpoint, q=q) }}
 {% endblock %}

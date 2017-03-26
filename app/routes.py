@@ -65,15 +65,14 @@ def show_sign_up():
         return render_template('sign_up.html', form=form)
 
 @routes.route('/show_entries', methods=['GET', 'POST'])
-@routes.route('/show_entries/<search_query>', methods=['GET', 'POST'])
-def show_entries(search_query=None):
+def show_entries():
     form = SearchForm()
     entry_list = []
     if form.validate_on_submit():
         search_query = form.search_query.data
         most_saved = form.most_saved.data
         most_recent = form.most_recent.data
-        return redirect(url_for('routes.show_entries', search_query=search_query))
+        return redirect(url_for('routes.show_entries', q=search_query))
 
     if request.method == "POST":
         entry_id = int(request.form["entry_id"])
@@ -103,16 +102,17 @@ def show_entries(search_query=None):
 
     else:
         page = request.args.get('page', 1, type=int)
-        if search_query:
-            pagination = Entry.query.filter((Entry.description.contains(search_query)) | (Entry.template.contains(search_query))).paginate(page, per_page=30, error_out=False)
-            endpoint = '.show_entries/{}'.format(search_query)
+        q = request.args.get('q')
+        if q:
+            pagination = Entry.query.filter((Entry.description.contains(q)) \
+                | (Entry.template.contains(q))).paginate(page, per_page=30, error_out=False)
         else:
             pagination = Entry.query.order_by(desc(Entry.id)).paginate(page, per_page=30, error_out=True)
-            endpoint = '.show_entries'
+        endpoint = '.show_entries'
         entries = pagination.items
         entries = enumerate(entries, 1)
 
-        return render_template('entries.html', entries=entries, pagination=pagination, form=form, endpoint=endpoint)
+        return render_template('entries.html', entries=entries, pagination=pagination, form=form, q=q, endpoint=endpoint)
 
 @routes.route('/add', methods=['GET', 'POST'])
 def add_entry():
@@ -176,4 +176,8 @@ def view_profile(username):
         saved_entries = user.saved_entries
         user_entries = enumerate(user_entries, 1)
         saved_entries = enumerate(saved_entries, 1)
-        return render_template('user_profile.html',user_entries=user_entries, saved_entries=saved_entries, username=username, current=current)
+        return render_template('user_profile.html',
+            user_entries=user_entries,
+            saved_entries=saved_entries,
+            username=username,
+            current=current)

@@ -1,6 +1,10 @@
 from flask_wtf import Form
+from flask import request
 from wtforms import StringField, SubmitField, TextAreaField, PasswordField, BooleanField
 from wtforms.validators import Required, EqualTo
+
+def get_q():
+    return request.args.get('q', '')
 
 class LogginForm(Form):
     name = StringField('Username:', validators=[Required()])
@@ -23,7 +27,7 @@ class AddEntryForm(Form):
     submit = SubmitField('Submit Smartphrase')
 
 class SearchForm(Form):
-    search_query = StringField('Search:', validators=[Required()])
+    search_query = StringField('Search:', validators=[Required()], default=get_q)
     most_saved = BooleanField('Most saved')
     most_recent = BooleanField('Most recent')
     submit = SubmitField('Search')
