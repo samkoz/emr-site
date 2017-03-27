@@ -3,4 +3,17 @@
 {% block title %}Sign Up{% endblock %}
 {% block page_content %}
 {{ wtf.quick_form(form) }}
+<!-- <form class="container" action="{{ url_for('routes.show_entries') }}" method="POST">
+  {{ form.hidden_tag() }}
+  <div>{{ form.name.label }} {{ form.name(required=form.name.flags.required) }}</div>
+  <div>{{ form.password.label }} {{ form.password(required=form.password.flags.required) }}</div>
+  <div>{{ form.password_confirm.label }} {{ form.password_confirm }}</div>
+  <div>{{ form.profession.label }} {{ form.profession(list="professions") }}
+    <datalist id="professions">
+      {% for profession in professions %}
+      <option value={{ profession }}>
+      {% endfor %}
+    </datalist>
+  <div>{{ form.submit }}</div>
+</form> -->
 {% endblock %}

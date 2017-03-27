@@ -10,6 +10,15 @@ h1 {
   margin-right: auto;
 }
 
+td {
+  white-space: pre-wrap;
+}
+
+a.expand_link {
+  cursor: pointer;
+  cursor: hand;
+}
+
 #search_options_specialty {
   float: left;
   width: 33%;

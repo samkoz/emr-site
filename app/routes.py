@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request, flash, Blu
 from flask_login import login_user, logout_user, current_user
 from sqlalchemy import desc
 from .db import db, Entry, User
-from .forms import LogginForm, SignUpForm, AddEntryForm, SearchForm
+from .forms import LogginForm, SignUpForm, AddEntryForm, SearchForm, UserProfileToggle
 
 routes = Blueprint('routes', __name__, template_folder='templates')
 
@@ -69,7 +69,8 @@ def show_sign_up():
             flash("username already in database - choose something else")
             return redirect(url_for('routes.show_sign_up'))
     else:
-        return render_template('sign_up.html', form=form)
+        professions = ['Physician', 'Nurse Practitioner', 'Physicians Assistant']
+        return render_template('sign_up.html', form=form, professions=professions)
 
 @routes.route('/show_entries', methods=['GET', 'POST'])
 def show_entries():
@@ -85,31 +86,42 @@ def show_entries():
             specialty=specialty, note_type=note_type, note_part=note_part))
 
     if request.method == "POST":
-        entry_id = int(request.form["entry_id"])
-        print(entry_id)
-        entry = Entry.query.filter(Entry.id == entry_id).one()
-        user = User.query.filter(User.name == session['user']).one()
-        print(entry)
-        print(user)
-        message = ""
-        if entry in user.submissions:
-            message = "You cannot save an entry you have submitted"
-            status = "Error"
-        elif entry in user.saved_entries:
-            message = "You have already saved this entry"
-            status = "Error"
-        else:
-            if entry.num_user_saves == 0:
-                entry.user_saves = [user]
+        request_type = list(request.form.keys())
+        if "save_entry" in request_type:
+            entry_id = int(request.form["save_entry"])
+            entry = Entry.query.filter(Entry.id == entry_id).one()
+            user = User.query.filter(User.name == session['user']).one()
+            print(entry)
+            print(user)
+            message = ""
+            if entry in user.submissions:
+                message = "You cannot save an entry you have submitted"
+                status = "Error"
+            elif entry in user.saved_entries:
+                message = "You have already saved this entry"
+                status = "Error"
             else:
-                entry.user_saves.append(user)
-            entry.num_user_saves += 1
+                if entry.num_user_saves == 0:
+                    entry.user_saves = [user]
+                else:
+                    entry.user_saves.append(user)
+                entry.num_user_saves += 1
 
-            db.session.add_all([user, entry])
-            db.session.commit()
-            status = 'OK'
+                db.session.add_all([user, entry])
+                db.session.commit()
+                status = 'OK'
 
-        return json.dumps({'status': status, "data" : [message, entry.num_user_saves]});
+            return json.dumps({'status': status, "data" : [message, entry.num_user_saves]});
+        elif "update_template" in request_type:
+            template_id = request.form['update_template']
+            current_display = request.form['current_template']
+            entry_id = int(template_id[9:])
+            entry = Entry.query.filter(Entry.id == entry_id).one()
+            if len(current_display) < len(entry.template):
+                return_template, action = entry.template, 'expand'
+            else:
+                return_template, action = entry.template_display, 'shrink'
+            return json.dumps({'return_template': return_template, "action" : action})
 
     else:
         q = request.args.get('q')
@@ -149,6 +161,9 @@ def show_entries():
         entries = pagination.items
         entries = entries
 
+        for entry in entries:
+            print(entry.too_long)
+
         # preserve form values
         form.search_query.data = q
         if search_order:
@@ -171,6 +186,7 @@ def add_entry():
         specialty_tag = form.specialty.data
         note_type_tag = form.note_type.data
         note_part_tag = form.note_part.data
+        remember_tags = form.remember_tags.data
 
         tags = []
         if specialty_tag:
@@ -182,15 +198,21 @@ def add_entry():
         if note_part_tag:
             for tag in note_part_tag:
                 tags.append(tag)
-
+        tags = sorted(tags)
         tags = ', '.join(tags)
 
         entry = Entry(description=description, template=template, user=user, tags=tags)
         db.session.add(entry)
         db.session.commit()
         flash("entry added")
-        return redirect(url_for('routes.add_entry'))
+        return redirect(url_for('routes.add_entry', remember_tags=remember_tags, specialty=specialty_tag, note_part=note_part_tag, note_type=note_type_tag))
     else:
+        remember_tags = request.args.get('remember_tags')
+        if remember_tags:
+            form.specialty.data = request.args.getlist('specialty')
+            form.note_part.data = request.args.getlist('note_part')
+            form.note_type.data = request.args.getlist('note_type')
+            form.remember_tags.data = request.args.get('remember_tags')
         return render_template('add_entries.html', form=form)
 
 @routes.route('/users', methods=['GET'])
@@ -201,6 +223,7 @@ def show_users():
 @routes.route('/view_profile/<username>', methods=['GET', 'POST'])
 def view_profile(username):
     # this will delete entries if delete button is pressed
+    form = UserProfileToggle()
     if request.method == "POST":
         print("success");
         entry_id = int(request.form['entry_id'])
@@ -223,19 +246,20 @@ def view_profile(username):
             raise KeyError
         return json.dumps({'status':'OK'});
     else:
-        # otherwise, it will display all their submitted and saved entries
+
         if current_user.is_anonymous or current_user.name != username:
             current = False
             user = User.query.filter(User.name == username).one()
             username = user.name
             if username[-1] == 's':
-                username += "' profile"
+                username_display = username + "' profile"
             else:
-                username += "'s profile"
+                username_display = username + "'s profile"
         else:
             user = current_user
+            username = user.name
             current = True
-            username = 'Your profile'
+            username_display = 'Your profile'
         specialty = user.specialty
         institution = user.institution
         profession = user.profession
@@ -246,8 +270,10 @@ def view_profile(username):
         return render_template('user_profile.html',
             user_entries=user_entries,
             saved_entries=saved_entries,
+            username_display=username_display,
             username=username,
             specialty=specialty,
             profession=profession,
             institution=institution,
-            current=current)
+            current=current,
+            form=form)

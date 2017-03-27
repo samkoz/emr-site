@@ -9,13 +9,13 @@
       <li><a href="{{ url_for('routes.show_entries') }}">Show Entries</a></li>
       {% if current_user.is_authenticated %}
       <li><a href="{{ url_for('routes.add_entry') }}">Add Entries</a></li>
-      <li><a href="{{ url_for('routes.view_profile', username=session['user']) }}">My Profile</a></li>
+      <li><a href="{{ url_for('routes.view_profile', username=current_user.name) }}">My Profile</a></li>
       {% endif %}
       <li><a href="{{ url_for('routes.show_users') }}">Show Users</a><li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
       {% if current_user.is_authenticated %}
-      <li><a href="{{ url_for('routes.log_out') }}">Log out {{ current_user.name }}</a></li>
+      <li><a href="{{ url_for('routes.log_out') }}">Log out ({{ current_user.name }})</a></li>
       {% else %}
       <li><a href="{{ url_for('routes.show_log_in') }}">Log in</a></li>
       <li><a href="{{ url_for('routes.show_sign_up') }}">Sign up</a></li>

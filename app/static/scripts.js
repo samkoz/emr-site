@@ -30,7 +30,7 @@ $(document).ready(function(){
 
     $.ajax({
       url: '/show_entries',
-      data: {"entry_id" : entry_id},
+      data: {"save_entry" : entry_id},
       type: 'POST',
       success: function(response){
         var json = JSON.parse(response);
@@ -40,13 +40,7 @@ $(document).ready(function(){
         var num_saves = data[1]
         console.log(message)
         if (status == 'Error') {
-          $("#error_message").text(function(){
-            return message;
-          })
-          // this won't work for some reason...
-          $("p#" + entry_id).text(function(){
-            return message;
-          })
+            alert(message)
         } else {
           $( "td.num_saves#" + entry_id).text(function(){
             return num_saves;
@@ -58,4 +52,31 @@ $(document).ready(function(){
       }
     });
   });
+
+  $("a.expand_link").click(function(){
+    var template_id = this.id
+    var current_template = $("span#" + template_id).text()
+    $.ajax({
+      url: '/show_entries',
+      data: {'update_template': template_id, 'current_template' : current_template},
+      type: 'POST',
+      success: function(response){
+        var json = JSON.parse(response)
+        var return_template = json['return_template']
+        var action = json['action']
+        $("span#" + template_id).text(return_template)
+        if (action == 'expand') {
+          $('a.expand_link#' + template_id).text('\n(show less)')
+          $('button.copybutton.too_long#' + template_id).removeClass("disabled")
+        } else {
+          $('a.expand_link#' + template_id).text('...(show more)')
+          $('button.copybutton.too_long#' + template_id).addClass("disabled")
+        }
+        console.log(action)
+      },
+      error: function(error){
+        console.log(error)
+      }
+    })
+  })
 });

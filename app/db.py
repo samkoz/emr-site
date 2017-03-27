@@ -6,6 +6,51 @@ from flask_login import UserMixin
 
 db = SQLAlchemy()
 
+specialties = ['Cardiology',
+    'Critical Care/ICU',
+    'Dermatology',
+    'Emergency Medicine',
+    'ENT',
+    'Family Medicine',
+    'Gastroenterology',
+    'General Internal Medicine',
+    'Hematology/Oncology',
+    'Nephrology',
+    'Neurology',
+    'Neurosurgery',
+    'Obstetrics/Gynecology',
+    'Ophthalmology',
+    'Pediatrics',
+    'Psychiatry',
+    'Pulmonology',
+    'Radiology',
+    'Surgery: Colorectal',
+    'Surgery:General',
+    'Surgery: Transplant',
+    'Transplant',
+    'Urology']
+
+note_type = ['Code/Rapid Response',
+    'Care Conference',
+    'Consult',
+    'Discharge Summary',
+    'H&P',
+    'Operation Note',
+    'Progress Note',
+    'Proccedure Note']
+
+note_part = ['Lab Results',
+    'HPI',
+    'ROS',
+    'Physical Exam',
+    'Past Medical History',
+    'Surgical History',
+    'Family History',
+    'Social Hx',
+    'Medications',
+    'Assessment and Plan']
+
+all_tags = specialties + note_type + note_part
 
 association_table = db.Table('assocation_table',
                 db.Column('user_id', db.Integer, db.ForeignKey('users.id', ondelete="CASCADE", onupdate="CASCADE")),
@@ -44,22 +89,44 @@ class Entry(db.Model):
         for i in range(count):
             u = User.query.offset(randint(0, 10)).first()
             p = Entry(description=forgery_py.lorem_ipsum.title(words_quantity=4),
-                template=forgery_py.lorem_ipsum.sentences(randint(5, 10)),
+                template=forgery_py.lorem_ipsum.sentences(50),
                 time_created=forgery_py.date.date(True),
-                tags=', '.join(sample(['Internal Medicine',
-                    'Pediatrics',
-                    'General Surgery',
-                    'H&P',
-                    'Progress Note',
-                    'Proccedure Note',
-                    'Operation Note',
-                    'HPI',
-                    'ROS',
-                    'Social Hx',
-                    'Meds'], 4)),
+                tags=', '.join(sample(all_tags, 4)),
                 user=u)
             db.session.add(p)
             db.session.commit()
+
+    @property
+    def too_long(self):
+        template = self.template
+        if len(template) / 100  + template.count('\n') + 1 > 7:
+            return True
+        else:
+            return False
+
+    @property
+    def template_display(self):
+        if self.too_long:
+            new_lines_split = self.template.split('\n')
+            remaining_lines = 7
+            shortened_template = []
+            for line in new_lines_split:
+                if remaining_lines < 0:
+                    break
+                current_new_lines = (len(line) / 100) + 1
+                print(current_new_lines)
+                if current_new_lines > 7:
+                    shortened_template.append(line[:700])
+                else:
+                    shortened_template.append(line)
+                remaining_lines -= current_new_lines
+                print(remaining_lines)
+            shortened_template = '\n'.join(shortened_template)
+            return shortened_template
+        else:
+            return self.template
+
+
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -98,7 +165,7 @@ class User(UserMixin, db.Model):
                 institution=forgery_py.address.city(),
                 time_enrolled=forgery_py.date.date(True),
                 profession=choice(['Physician', 'Nurse Practitionar', 'Physician Assistant']),
-                specialty=choice(['Heme/Onc', 'General IM', 'Breast Radiologist'])
+                specialty=choice(specialties)
                 )
             db.session.add(u)
             try:

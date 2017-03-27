@@ -1,23 +1,23 @@
 {% extends "layout.html" %}
 {% block page_content %}
-{% import "bootstrap/wtf.html" as wtf %}
-
-<h1>{{ username_display }}</h1>
+<h1>{{ username }}</h1>
 <div class="container">
   <span>Profession: {{ profession }}</span><br>
   {% if specialty %}<span>Specialty: {{ specialty }}</span><br>{% endif %}
   {% if institution %}<span>Institution: {{ institution }}</span><br>{% endif %}<br>
 </div>
 {{ wtf.quick_form(form) }}
-<table class="table" id="entry_table">
+<h2>Saved Entries</h2>
+<table class="table" id=save_table>
   <tr>
     <th>Date</th>
     <th>Description</th>
     <th>Smartpharse</th>
+    <th>User</th>
     <th>Tags</th>
     <th>Saves</th>
   </tr>
-  {% for entry in user_entries %}
+  {% for entry in saved_entries %}
   <tr>
     <td>{{ moment(entry.time_created).fromNow(refresh=True) }}
     <td>{{ entry['description'] }}</td>{% if entry.too_long %}
@@ -28,31 +28,12 @@
     <td class="buttons">{% if current %}
       <button class="delete_button user_entries btn btn-default" id="{{ entry.id }}">Delete</button>{% elif current_user.is_authenticated %}
       <button type="button" class="btn btn-default save button" id="{{ entry.id }}">Save</button>{% endif %}
-      {% if entry.too_long %}<button type="button" title="will be disabled until you click 'show more'" class="disabled too_long btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>
+      {% if entry.too_long %}<button type="button" class="disabled too_long btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>
       {% else %}<button type="button" class="btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>{% endif %}
     </td>
   </tr>
   {% endfor %}
 </table>
-<br>
-<h2>Saved Entries</h2>
-  <table class="table" id=save_table>
-    <tr>
-      <th>Description</th>
-      <th>Smartpharse Template</th>
-    </tr>
-    {% for entry in saved_entries %}
-    <tr id="{{ entry.id }}">
-      <td>{{ entry['description'] }}</td>
-      <td>{{ entry["template"]}}</td>
-      <td>
-        {% if current %}<button class="delete_button saved_entries" id="{{ entry.id }}">Delete</button>{% endif %}
-        <button type="button" class="btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="{{ entry.id}}">Copy</button>
-      <td>
-    </tr>
-    {% endfor %}
-  </table>
-{% endblock %}
 
 {% block scripts %}
 {{ super() }}
