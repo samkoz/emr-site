@@ -16,10 +16,11 @@ class Entry(db.Model):
     __tablename__ = "entries"
     id = db.Column(db.Integer, primary_key=True)
     time_created = db.Column(db.DateTime, default=datetime.utcnow)
-    description = db.Column(db.String(200), unique=False)
+    description = db.Column(db.String(10000), unique=False)
     template = db.Column(db.Text())
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete="CASCADE", onupdate="CASCADE"))
     num_user_saves = db.Column(db.Integer(), default=0)
+    tags = db.Column(db.String(10000))
 
     def __repr__(self):
         return_string = "Entry Object:\n"
@@ -49,6 +50,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(200), unique=True)
     password_hash = db.Column(db.String(200))
+    specialty = db.Column(db.String(200))
     institution = db.Column(db.String(200), default=None)
     time_enrolled = db.Column(db.DateTime, default=datetime.utcnow)
     saved_entries = db.relationship("Entry", secondary=association_table, backref=db.backref("user_saves"))

@@ -22,13 +22,29 @@ class AddEntryForm(Form):
     #title = StringField('Title:', validators=[Required()])
     description = StringField('Smartphrase Description:', validators=[Required()])
     template = TextAreaField('Smartphrase Template:', validators=[Required()])
+    specialty = SelectMultipleField('Specialty', choices=[
+        ('IM', 'Internal Medicine'),
+        ('Peds', 'Pediatrics'),
+        ('GenSurg', 'General Surgery')])
+    note_type = SelectMultipleField('Note Type', choices=[
+        ('HandP', 'H&P'),
+        ('Prog', 'Progress Note'),
+        ('Proc', 'Procedure Note'),
+        ('Op', 'Operation Note')
+        ])
+    note_part = SelectMultipleField('Note Component', choices=[
+        ('HPI', 'HPI'),
+        ('ROS', 'ROS'),
+        ('SocHx', 'Social History'),
+        ('Meds', 'Medications')
+    ])
     submit = SubmitField('Submit Smartphrase')
 
 class SearchForm(Form):
     search_order = RadioField('Order search results by', choices=[
         ('submission_time', 'Most recent'),
         ('saves', 'Most saved')], validators=[Required()])
-    search_query = StringField('Search', validators=[Required()])
+    search_query = StringField('Search')
     specialty = SelectMultipleField('Specialty', choices=[
         ('IM', 'Internal Medicine'),
         ('Peds', 'Pediatrics'),

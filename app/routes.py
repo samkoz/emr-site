@@ -50,8 +50,8 @@ def show_sign_up():
         username = form.name.data
         institution = form.institution.data
         password = form.password.data
-        current_user = User.query.filter(User.name == username.lower()).first()
-        if not current_user:
+        already_signed_up = User.query.filter(User.name == username.lower()).first()
+        if not already_signed_up:
             new_user = User(name=username, institution=institution, password=password)
             db.session.add(new_user)
             db.session.commit()
@@ -112,15 +112,30 @@ def show_entries():
         note_type = request.args.getlist('note_type')
         page = request.args.get('page', 1, type=int)
 
+        tags = []
+        if specialty:
+            for tag in specialty:
+                tags.append(tag)
+        if note_type:
+            for tag in note_type:
+                tags.append(tag)
+        if note_part:
+            for tag in note_part:
+                tags.append(tag)
+
         if q:
             entries = Entry.query.filter((Entry.description.contains(q)) \
                 | (Entry.template.contains(q)))
-            if search_order == "submission_time":
-                pagination = entries.order_by(desc(Entry.time_created)).paginate(page, per_page=30, error_out=False)
-            elif search_order == 'saves':
-                pagination = entries.order_by(desc(Entry.num_user_saves)).paginate(page, per_page=30, error_out=False)
         else:
-            pagination = Entry.query.order_by(desc(Entry.time_created)).paginate(page, per_page=30, error_out=True)
+            entries = Entry.query
+            
+        if tags:
+            for tag in tags:
+                entries = entries.filter(Entry.tags.contains(tag))
+        if search_order == 'saves':
+            pagination = entries.order_by(desc(Entry.num_user_saves)).paginate(page, per_page=30, error_out=False)
+        else:
+            pagination = entries.order_by(desc(Entry.time_created)).paginate(page, per_page=30, error_out=False)
         endpoint = '.show_entries'
         entries = pagination.items
         entries = entries
@@ -143,10 +158,25 @@ def add_entry():
     if form.validate_on_submit():
         description = form.description.data
         template = form.template.data
-        # form.description.data = ''
-        # form.template.data = ''
-        user = User.query.filter(User.name == session['user']).one()
-        entry = Entry(description=description, template=template, user=user)
+        user = current_user
+        specialty_tag = form.specialty.data
+        note_type_tag = form.note_type.data
+        note_part_tag = form.note_part.data
+
+        tags = []
+        if specialty_tag:
+            for tag in specialty_tag:
+                tags.append(tag)
+        if note_type_tag:
+            for tag in note_type_tag:
+                tags.append(tag)
+        if note_part_tag:
+            for tag in note_part_tag:
+                tags.append(tag)
+
+        tags = ', '.join(tags)
+
+        entry = Entry(description=description, template=template, user=user, tags=tags)
         db.session.add(entry)
         db.session.commit()
         flash("entry added")

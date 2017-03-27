@@ -7,8 +7,7 @@ td {
   word-break: break-all;
 }
 
-/*See commented out part in entries...was trying to make it collapsable*/
-/*#search_options_specialty {
+#search_options_specialty {
   float: left;
   width: 33%;
 }
@@ -21,7 +20,7 @@ td {
 #search_options_note_type {
   float: left;
   width: 33%;
-}*/
+}
 
 .text_submit {
   white_space: pre-wrap;

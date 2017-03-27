@@ -3,27 +3,27 @@
 {% import "_macros.html" as macros %}
 {% block title %}Browse Smartphrases{% endblock %}
 {% block page_content %}
-<!-- <form class="container" action="{{ url_for('routes.show_entries') }}" method="POST">
+<form class="container" action="{{ url_for('routes.show_entries') }}" method="POST">
   {{ form.hidden_tag() }}
   <div id="search-order-options">{{ form.search_order.label }} {{ form.search_order }}</div>
-  {{ form.search_query.label }} {{ form.search_query }}<br>
-  <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#search_options">Additional Search Options</button>
+  {{ form.search_query.label }} {{ form.search_query }}<br><br>
+  <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#search_options">Additional Search Options</button><br>
   <div id="search_options" class="collapse">
     <div id="search_options_specialty">{{ form.specialty.label }}:<br>{{ form.specialty }}</div>
     <div id="search_options_note_type">{{ form.note_type.label }}:<br>{{ form.note_type }}</div>
     <div id="search_options_note_part">{{ form.note_part.label }}:<br>{{ form.note_part }}</div>
-  </div>
-  <div>{{ form.submit.label }}: {{ form.submit }}</div>
-</form> -->
-{{ wtf.quick_form(form)}}
+  </div><br>
+  <div>{{ form.submit }}</div>
+</form>
+<!-- {{ wtf.quick_form(form)}} -->
 <p id="error_message"><p>
 <table class="table" id=entry_table>
   <tr>
     <th>Submission time</th>
     <th>Description</th>
     <th>Smartpharse Template</th>
-    <th>Created by</th>
-    <th>Number of times saved</th>
+    <th>Submitted by</th>
+    <th>Saves</th>
   </tr>
   {% for entry in entries %}
     <tr>
@@ -31,14 +31,13 @@
       <td>{{ entry['description'] }}</td>
       <td id="template-{{ entry.id }}">{{ entry["template"] }}</td>
       <td><a href="{{ entry.user.url }}" class="profile_redirect">{{ entry.user.name }}</td>
-
       <td class="num_saves" id="{{ entry.id }}">{{ entry.num_user_saves }}</td>
-      {% if current_user.is_authenticated %}
       <td id="{{ entry.id }} save_column">
+      {% if current_user.is_authenticated %}
         <button type="button" class="btn btn-default save button" id="{{ entry.id }}">Save</button>
+      {% endif %}
         <button type="button" class="btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="{{ entry.id}}">Copy</button>
       </td>
-      {% endif %}
     </tr>
   {% endfor %}
 </table>
