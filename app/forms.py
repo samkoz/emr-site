@@ -15,6 +15,8 @@ class SignUpForm(Form):
     name = StringField('Choose a user name:', validators=[Required()])
     password = PasswordField('Password:')
     password_confirm = PasswordField('Type your password again:', validators=[EqualTo('password', message="Passwords must match")])
+    profession = StringField('Profession:', validators=[Required()])
+    specialty = StringField('Specialty (if applicable):')
     institution = StringField('Institution where you work (optional):')
     submit = SubmitField('Sign up')
 
@@ -23,20 +25,20 @@ class AddEntryForm(Form):
     description = StringField('Smartphrase Description:', validators=[Required()])
     template = TextAreaField('Smartphrase Template:', validators=[Required()])
     specialty = SelectMultipleField('Specialty', choices=[
-        ('IM', 'Internal Medicine'),
-        ('Peds', 'Pediatrics'),
-        ('GenSurg', 'General Surgery')])
+        ('Internal Medicine', 'Internal Medicine'),
+        ('Pediatrics', 'Pediatrics'),
+        ('General Surgery', 'General Surgery')])
     note_type = SelectMultipleField('Note Type', choices=[
-        ('HandP', 'H&P'),
-        ('Prog', 'Progress Note'),
-        ('Proc', 'Procedure Note'),
-        ('Op', 'Operation Note')
+        ('H&P', 'H&P'),
+        ('Progress Note', 'Progress Note'),
+        ('Proccedure Note', 'Procedure Note'),
+        ('Operation Note', 'Operation Note')
         ])
     note_part = SelectMultipleField('Note Component', choices=[
         ('HPI', 'HPI'),
         ('ROS', 'ROS'),
-        ('SocHx', 'Social History'),
-        ('Meds', 'Medications')
+        ('Social Hx', 'Social Hx'),
+        ('Meds', 'Meds')
     ])
     submit = SubmitField('Submit Smartphrase')
 
@@ -46,19 +48,19 @@ class SearchForm(Form):
         ('saves', 'Most saved')], validators=[Required()])
     search_query = StringField('Search')
     specialty = SelectMultipleField('Specialty', choices=[
-        ('IM', 'Internal Medicine'),
-        ('Peds', 'Pediatrics'),
-        ('GenSurg', 'General Surgery')])
+        ('Internal Medicine', 'Internal Medicine'),
+        ('Pediatrics', 'Pediatrics'),
+        ('General Surgery', 'General Surgery')])
     note_type = SelectMultipleField('Note Type', choices=[
-        ('HandP', 'H&P'),
-        ('Prog', 'Progress Note'),
-        ('Proc', 'Procedure Note'),
-        ('Op', 'Operation Note')
+        ('H&P', 'H&P'),
+        ('Progress Note', 'Progress Note'),
+        ('Proccedure Note', 'Procedure Note'),
+        ('Operation Note', 'Operation Note')
         ])
     note_part = SelectMultipleField('Note Component', choices=[
         ('HPI', 'HPI'),
         ('ROS', 'ROS'),
-        ('SocHx', 'Social History'),
-        ('Meds', 'Medications')
+        ('Social Hx', 'Social Hx'),
+        ('Meds', 'Meds')
     ])
     submit = SubmitField('Search')

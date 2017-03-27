@@ -20,7 +20,7 @@ class Entry(db.Model):
     template = db.Column(db.Text())
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete="CASCADE", onupdate="CASCADE"))
     num_user_saves = db.Column(db.Integer(), default=0)
-    tags = db.Column(db.String(10000))
+    tags = db.Column(db.String(1000))
 
     def __repr__(self):
         return_string = "Entry Object:\n"
@@ -34,24 +34,41 @@ class Entry(db.Model):
                 return_string += "{}: {}\n".format(k, var_dict[k])
         return return_string
 
+    @staticmethod
     def generate_fake(count=100):
         from random import seed, randint
         import forgery_py
+        from random import sample
         seed()
         user_count = User.query.count()
         for i in range(count):
             u = User.query.offset(randint(0, 10)).first()
-            p = Entry(description=forgery_py.lorem_ipsum.title(words_quantity=4), template=forgery_py.lorem_ipsum.sentences(randint(5, 10)), time_created=forgery_py.date.date(True), user=u)
+            p = Entry(description=forgery_py.lorem_ipsum.title(words_quantity=4),
+                template=forgery_py.lorem_ipsum.sentences(randint(5, 10)),
+                time_created=forgery_py.date.date(True),
+                tags=', '.join(sample(['Internal Medicine',
+                    'Pediatrics',
+                    'General Surgery',
+                    'H&P',
+                    'Progress Note',
+                    'Proccedure Note',
+                    'Operation Note',
+                    'HPI',
+                    'ROS',
+                    'Social Hx',
+                    'Meds'], 4)),
+                user=u)
             db.session.add(p)
             db.session.commit()
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(200), unique=True)
-    password_hash = db.Column(db.String(200))
-    specialty = db.Column(db.String(200))
-    institution = db.Column(db.String(200), default=None)
+    name = db.Column(db.String(1000), unique=True)
+    password_hash = db.Column(db.String(1000))
+    specialty = db.Column(db.String(1000))
+    profession = db.Column(db.String(1000))
+    institution = db.Column(db.String(1000), default=None)
     time_enrolled = db.Column(db.DateTime, default=datetime.utcnow)
     saved_entries = db.relationship("Entry", secondary=association_table, backref=db.backref("user_saves"))
     submissions = db.relationship('Entry', order_by=Entry.id, backref=db.backref('user'))
@@ -71,12 +88,18 @@ class User(UserMixin, db.Model):
     @staticmethod
     def generate_fake(count=100):
         from sqlalchemy.exc import IntegrityError
-        from random import seed
+        from random import seed, choice
         import forgery_py
 
         seed()
         for i in range(count):
-            u = User(name=forgery_py.internet.user_name(True), password=forgery_py.lorem_ipsum.word(), institution=forgery_py.address.city(), time_enrolled=forgery_py.date.date(True))
+            u = User(name=forgery_py.internet.user_name(True),
+                password=forgery_py.lorem_ipsum.word(),
+                institution=forgery_py.address.city(),
+                time_enrolled=forgery_py.date.date(True),
+                profession=choice(['Physician', 'Nurse Practitionar', 'Physician Assistant']),
+                specialty=choice(['Heme/Onc', 'General IM', 'Breast Radiologist'])
+                )
             db.session.add(u)
             try:
                 db.session.commit()

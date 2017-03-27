@@ -23,6 +23,7 @@
     <th>Description</th>
     <th>Smartpharse Template</th>
     <th>Submitted by</th>
+    <th>Tags</th>
     <th>Saves</th>
   </tr>
   {% for entry in entries %}
@@ -31,6 +32,11 @@
       <td>{{ entry['description'] }}</td>
       <td id="template-{{ entry.id }}">{{ entry["template"] }}</td>
       <td><a href="{{ entry.user.url }}" class="profile_redirect">{{ entry.user.name }}</td>
+      <td>
+        {% if entry.tags %}
+        {% for tag in entry.tags.split(',') %}<span>{{ tag }}</span><br>{% endfor %}
+        {% else %} None{% endif %}
+      </td>
       <td class="num_saves" id="{{ entry.id }}">{{ entry.num_user_saves }}</td>
       <td id="{{ entry.id }} save_column">
       {% if current_user.is_authenticated %}

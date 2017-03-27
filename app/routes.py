@@ -12,6 +12,7 @@ def show_landing():
 
 @routes.route('/test_entries')
 def gen_test_entries():
+    User.generate_fake(20)
     Entry.generate_fake()
     return redirect(url_for('routes.show_entries'))
 
@@ -50,9 +51,15 @@ def show_sign_up():
         username = form.name.data
         institution = form.institution.data
         password = form.password.data
+        profession = form.profession.data
+        specialty = form.specialty.data
         already_signed_up = User.query.filter(User.name == username.lower()).first()
         if not already_signed_up:
-            new_user = User(name=username, institution=institution, password=password)
+            new_user = User(name=username,
+                institution=institution,
+                password=password,
+                profession=profession,
+                specialty=specialty)
             db.session.add(new_user)
             db.session.commit()
             flash("sign up successful")
@@ -123,12 +130,14 @@ def show_entries():
             for tag in note_part:
                 tags.append(tag)
 
+        print(tags)
+
         if q:
             entries = Entry.query.filter((Entry.description.contains(q)) \
                 | (Entry.template.contains(q)))
         else:
             entries = Entry.query
-            
+
         if tags:
             for tag in tags:
                 entries = entries.filter(Entry.tags.contains(tag))
@@ -227,6 +236,9 @@ def view_profile(username):
             user = current_user
             current = True
             username = 'Your profile'
+        specialty = user.specialty
+        institution = user.institution
+        profession = user.profession
         user_entries = user.submissions
         saved_entries = user.saved_entries
         user_entries = user_entries
@@ -235,4 +247,7 @@ def view_profile(username):
             user_entries=user_entries,
             saved_entries=saved_entries,
             username=username,
+            specialty=specialty,
+            profession=profession,
+            institution=institution,
             current=current)

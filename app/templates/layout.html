@@ -15,7 +15,7 @@
     </ul>
     <ul class="nav navbar-nav navbar-right">
       {% if current_user.is_authenticated %}
-      <li><a href="{{ url_for('routes.log_out') }}">Log out</a></li>
+      <li><a href="{{ url_for('routes.log_out') }}">Log out {{ current_user.name }}</a></li>
       {% else %}
       <li><a href="{{ url_for('routes.show_log_in') }}">Log in</a></li>
       <li><a href="{{ url_for('routes.show_sign_up') }}">Sign up</a></li>
