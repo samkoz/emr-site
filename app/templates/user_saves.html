@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block page_content %}
+{% import "bootstrap/wtf.html" as wtf %}
 <h1>{{ username }}</h1>
 <div class="container">
   <span>Profession: {{ profession }}</span><br>
@@ -23,6 +24,7 @@
     <td>{{ entry['description'] }}</td>{% if entry.too_long %}
     <td><span id="template-{{ entry.id }}">{{ entry.template_display }}</span><a class="expand_link" id="template-{{ entry.id }}">...(show more)</a></td>{% else %}
     <td id="template-{{ entry.id }}">{{ entry.template }}</td>{% endif %}
+    <td><a href="{{ entry.user.url }}" class="profile_redirect">{{ entry.user.name }}</td>
     <td>{% if entry.tags %}{% for tag in entry.tags.split(',') %}<span>{{ tag }}</span>{% endfor %}{% else %}None{% endif %}</td>
     <td class="num_saves" id="{{ entry.id }}">{{ entry.num_user_saves }}</td>
     <td class="buttons">{% if current %}
@@ -34,6 +36,7 @@
   </tr>
   {% endfor %}
 </table>
+{% endblock %}
 
 {% block scripts %}
 {{ super() }}

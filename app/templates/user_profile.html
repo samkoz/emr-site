@@ -34,24 +34,6 @@
   </tr>
   {% endfor %}
 </table>
-<br>
-<h2>Saved Entries</h2>
-  <table class="table" id=save_table>
-    <tr>
-      <th>Description</th>
-      <th>Smartpharse Template</th>
-    </tr>
-    {% for entry in saved_entries %}
-    <tr id="{{ entry.id }}">
-      <td>{{ entry['description'] }}</td>
-      <td>{{ entry["template"]}}</td>
-      <td>
-        {% if current %}<button class="delete_button saved_entries" id="{{ entry.id }}">Delete</button>{% endif %}
-        <button type="button" class="btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="{{ entry.id}}">Copy</button>
-      <td>
-    </tr>
-    {% endfor %}
-  </table>
 {% endblock %}
 
 {% block scripts %}

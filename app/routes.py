@@ -224,6 +224,10 @@ def show_users():
 def view_profile(username):
     # this will delete entries if delete button is pressed
     form = UserProfileToggle()
+    if form.validate_on_submit():
+        display_type = form.display_type.data
+        user = User.query.filter(User.name==username).first()
+        return redirect(url_for('routes.view_profile', username=username, display_type=display_type))
     if request.method == "POST":
         print("success");
         entry_id = int(request.form['entry_id'])
@@ -246,7 +250,7 @@ def view_profile(username):
             raise KeyError
         return json.dumps({'status':'OK'});
     else:
-
+        display_type = request.args.get('display_type', 'Submitted')
         if current_user.is_anonymous or current_user.name != username:
             current = False
             user = User.query.filter(User.name == username).one()
@@ -265,15 +269,24 @@ def view_profile(username):
         profession = user.profession
         user_entries = user.submissions
         saved_entries = user.saved_entries
-        user_entries = user_entries
-        saved_entries = saved_entries
-        return render_template('user_profile.html',
-            user_entries=user_entries,
-            saved_entries=saved_entries,
-            username_display=username_display,
-            username=username,
-            specialty=specialty,
-            profession=profession,
-            institution=institution,
-            current=current,
-            form=form)
+        form.display_type.data = display_type
+        if display_type == 'Submitted':
+            return render_template('user_profile.html',
+                user_entries=user_entries,
+                username_display=username_display,
+                username=username,
+                specialty=specialty,
+                profession=profession,
+                institution=institution,
+                current=current,
+                form=form)
+        else:
+            return render_template('user_saves.html',
+                saved_entries=saved_entries,
+                username_display=username_display,
+                username=username,
+                specialty=specialty,
+                profession=profession,
+                institution=institution,
+                current=current,
+                form=form)

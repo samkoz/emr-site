@@ -135,5 +135,5 @@ class SearchForm(Form):
     submit = SubmitField('Search')
 
 class UserProfileToggle(Form):
-    display_type = RadioField(choices=[('Submitted', 'Entries submitted by user'), ('Saved', 'Entries saved by user')])
+    display_type = RadioField(choices=[('Submitted', 'Entries submitted by user'), ('Saved', 'Entries saved by user')], default='Submitted')
     submit = SubmitField('Display')
