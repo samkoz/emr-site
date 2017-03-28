@@ -1,82 +1,66 @@
-{% extends "layout.html" %}
+{% extends "entries.html" %}
+{% import "_macros.html" as macros %}
 {% block page_content %}
-{% import "bootstrap/wtf.html" as wtf %}
-
-<h1>{{ username_display }}</h1>
+{% block user_name %}<h1>{{ username_display }}</h1>{% endblock user_name%}
+{% block profile %}
 <div class="container">
+  <h3>User Information</h3>
   <span>Profession: {{ profession }}</span><br>
   {% if specialty %}<span>Specialty: {{ specialty }}</span><br>{% endif %}
   {% if institution %}<span>Institution: {{ institution }}</span><br>{% endif %}<br>
 </div>
-{{ wtf.quick_form(form) }}
-<table class="table" id="entry_table">
+{% endblock profile %}
+
+{% block form_block %}
+{{ form.profile_display_type }}<br>
+{{ super() }}
+{% endblock form_block%}
+
+<table class="table" id="entry_tables">
   <tr>
+    {% block table_headers %}
     <th>Date</th>
     <th>Description</th>
     <th>Smartpharse</th>
     <th>Tags</th>
     <th>Saves</th>
+    {% endblock table_headers %}
   </tr>
-  {% for entry in user_entries %}
-  <tr id="{{ entry.id }}">
-    <td>{{ moment(entry.time_created).fromNow(refresh=True) }}
-    <td>{{ entry['description'] }}</td>{% if entry.too_long %}
-    <td><span id="template-{{ entry.id }}">{{ entry.template_display }}</span><a class="expand_link" id="template-{{ entry.id }}">...(show more)</a></td>{% else %}
-    <td id="template-{{ entry.id }}">{{ entry.template }}</td>{% endif %}
-    <td>{% if entry.tags %}{% for tag in entry.tags.split(',') %}<span>{{ tag }}</span>{% endfor %}{% else %}None{% endif %}</td>
-    <td class="num_saves" id="{{ entry.id }}">{{ entry.num_user_saves }}</td>
-    <td class="buttons">{% if current %}
+  {% for entry in entries %}
+  <tr id='{{ entry.id }}'>
+    {% block first_table_cols scoped %}{{ super() }}{% endblock first_table_cols %}
+    {% block last_table_cols scoped %}{{ super() }}{% endblock last_table_cols %}
+    {% block buttons_block scoped %}
+    <td>{% if current %}
       <button class="delete_button user_entries btn btn-default" id="{{ entry.id }}">Delete</button>{% elif current_user.is_authenticated %}
       <button type="button" class="btn btn-default save button" id="{{ entry.id }}">Save</button>{% endif %}
       {% if entry.too_long %}<button type="button" title="will be disabled until you click 'show more'" class="disabled too_long btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>
       {% else %}<button type="button" class="btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>{% endif %}
     </td>
+  {% endblock buttons_block %}
   </tr>
   {% endfor %}
 </table>
+
+
+{% block pagination scoped %}
+<div class="pagination">
+  {{ macros.pagination_widget(pagination,
+      endpoint,
+      username=username,
+      q=q,
+      search_order=search_order,
+      specialty=specialty,
+      note_part=note_part,
+      note_type=note_type,
+      profile_display_type=profile_display_type)
+  }}
+</div>
+{% endblock %}
+
+
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
-<script>
-
-  $('button').tooltip({
-  trigger: 'click',
-  placement: 'bottom'
-  });
-
-  function setTooltip(btn, message) {
-    $(btn).tooltip('hide')
-      .attr('data-original-title', message)
-      .tooltip('show');
-  }
-
-  function hideTooltip(btn) {
-    setTimeout(function() {
-      $(btn).tooltip('hide');
-    }, 1000);
-  }
-
-  var clipboard = new Clipboard('button');
-
-  clipboard.on('success', function(e) {
-    setTooltip(e.trigger, 'Copied!');
-    hideTooltip(e.trigger);
-    e.clearSelection()
-  });
-
-  clipboard.on('error', function(e) {
-    setTooltip(e.trigger, 'Failed!');
-    hideTooltip(e.trigger);
-  });
-
-  function supportedCopy() {
-    if (!Clipboard.isSupported() ) {
-      $('.copybutton').remove()
-    }
-  }
-
-  supportedCopy()
-
-</script>
 {% endblock %}

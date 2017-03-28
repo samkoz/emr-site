@@ -1,8 +1,11 @@
 {% extends "layout.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "_macros.html" as macros %}
-{% block title %}Browse Smartphrases{% endblock %}
+{% block title %}Browse Smartphrases{% endblock title %}
 {% block page_content %}
+{% block user_name %}{% endblock user_name%}
+
+{% block form_block %}
 <form class="container" action="{{ url_for('routes.show_entries') }}" method="POST">
   {{ form.hidden_tag() }}
   <div id="search-order-options">{{ form.search_order.label }} {{ form.search_order }}</div>
@@ -15,37 +18,55 @@
   </div><br>
   <div>{{ form.submit }}</div>
 </form>
-<!-- {{ wtf.quick_form(form)}} -->
-<p id="error_message"><p>
+{% endblock form_block %}
+
 <table class="table" id=entry_table>
   <tr>
+    {% block table_headers %}
     <th>Date</th>
     <th>Description</th>
     <th>Smartpharse</th>
     <th>User</th>
     <th>Tags</th>
     <th>Saves</th>
+    {% endblock table_headers%}
   </tr>
   {% for entry in entries %}
   <tr>
+    {% block first_table_cols scoped %}
     <td>{{ moment(entry.time_created).fromNow(refresh=True) }}
-    <td>{{ entry['description'] }}</td>
-    {% if entry.too_long %}<td><span id="template-{{ entry.id }}">{{ entry.template_display }}</span><a class="expand_link" id="template-{{ entry.id }}">...(show more)</a></td>
-    {% else %}<td id="template-{{ entry.id }}">{{ entry.template }}</td>{% endif %}
-    <td><a href="{{ entry.user.url }}" class="profile_redirect">{{ entry.user.name }}</td>
+    <td>{{ entry['description'] }}</td>{% if entry.too_long %}
+    <td><span id="template-{{ entry.id }}">{{ entry.template_display }}</span><a class="expand_link" id="template-{{ entry.id }}">...(show more)</a></td>{% else %}
+    <td id="template-{{ entry.id }}">{{ entry.template }}</td>{% endif %}
+    {% endblock first_table_cols %}
+    {% block user_block scoped %}<td><a href="{{ entry.user.url }}" class="profile_redirect">{{ entry.user.name }}</td>{% endblock user_block%}
+    {% block last_table_cols scoped %}
     <td>{% if entry.tags %}{% for tag in entry.tags.split(',') %}<span>{{ tag }}</span>{% endfor %}{% else %}None{% endif %}</td>
-    <td class="num_saves" id="{{ entry.id }}">{{ entry.num_user_saves }}</td>
-    <td id="{{ entry.id }} save_column">{% if current_user.is_authenticated %}
-    <button type="button" class="btn btn-default save button" id="{{ entry.id }}">Save</button>{% endif %}
-    {% if entry.too_long %}<button type="button" class="disabled too_long btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>
-    {% else %}<button type="button" class="btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>{% endif %}
-    </td>
+    <td class="num_saves" id="{{ entry.id }}">{{ entry.num_user_saves }}</td>{% endblock last_table_cols %}
+    {% block buttons_block scoped %}<td id="{{ entry.id }} save_column">{% if current_user.is_authenticated %}
+      <button type="button" class="btn btn-default save button" id="{{ entry.id }}">Save</button>{% endif %}{% if entry.too_long %}
+      <button type="button" class="disabled too_long btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>{% else %}
+      <button type="button" class="btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>{% endif %}
+    </td>{% endblock buttons_block %}
   </tr>
   {% endfor %}
 </table>
+
+{% block pagination scoped %}
 <div class="pagination">
-  {{ macros.pagination_widget(pagination, endpoint, q=q) }}
-{% endblock %}
+  {{ macros.pagination_widget(pagination,
+      endpoint,
+      q=q,
+      search_order=search_order,
+      specialty=specialty,
+      note_part=note_part,
+      note_type=note_type,
+      profile_display_type=profile_display_type)
+  }}
+</div>
+{% endblock pagination %}
+
+{% endblock page_content%}
 
 {% block scripts %}
 {{ super() }}

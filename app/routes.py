@@ -72,6 +72,36 @@ def show_sign_up():
         professions = ['Physician', 'Nurse Practitioner', 'Physicians Assistant']
         return render_template('sign_up.html', form=form, professions=professions)
 
+
+def flatten_tags(*args):
+    tags = []
+    for arg in args:
+        if arg:
+            for tag in arg:
+                tags.append(tag)
+    return tags
+
+def apply_query_string(entries, q):
+    if q:
+        entries = entries.filter((Entry.description.contains(q)) \
+            | (Entry.template.contains(q)))
+    else:
+        entries = Entry.query
+    return entries
+
+def apply_tags(entries, tags):
+    if tags:
+        for tag in tags:
+            entries = entries.filter(Entry.tags.contains(tag))
+    return entries
+
+def paginate_results(entries, search_order, page):
+    if search_order == 'saves':
+        pagination = entries.order_by(desc(Entry.num_user_saves)).paginate(page, per_page=30, error_out=False)
+    else:
+        pagination = entries.order_by(desc(Entry.time_created)).paginate(page, per_page=30, error_out=False)
+    return pagination
+
 @routes.route('/show_entries', methods=['GET', 'POST'])
 def show_entries():
     form = SearchForm()
@@ -130,39 +160,17 @@ def show_entries():
         note_part = request.args.getlist('note_part')
         note_type = request.args.getlist('note_type')
         page = request.args.get('page', 1, type=int)
+        profile_display_type = request.args.get('profile_display_type')
 
-        tags = []
-        if specialty:
-            for tag in specialty:
-                tags.append(tag)
-        if note_type:
-            for tag in note_type:
-                tags.append(tag)
-        if note_part:
-            for tag in note_part:
-                tags.append(tag)
+        tags = flatten_tags(specialty, note_type, note_part)
 
-        print(tags)
+        entries = Entry.query
+        entries = apply_query_string(entries, q)
+        entries = apply_tags(entries, tags)
+        pagination = paginate_results(entries, search_order, page)
 
-        if q:
-            entries = Entry.query.filter((Entry.description.contains(q)) \
-                | (Entry.template.contains(q)))
-        else:
-            entries = Entry.query
-
-        if tags:
-            for tag in tags:
-                entries = entries.filter(Entry.tags.contains(tag))
-        if search_order == 'saves':
-            pagination = entries.order_by(desc(Entry.num_user_saves)).paginate(page, per_page=30, error_out=False)
-        else:
-            pagination = entries.order_by(desc(Entry.time_created)).paginate(page, per_page=30, error_out=False)
         endpoint = '.show_entries'
         entries = pagination.items
-        entries = entries
-
-        for entry in entries:
-            print(entry.too_long)
 
         # preserve form values
         form.search_query.data = q
@@ -174,7 +182,18 @@ def show_entries():
         form.note_part.data = note_part
         form.note_type.data = note_type
 
-        return render_template('entries.html', entries=entries, pagination=pagination, form=form, q=q, endpoint=endpoint)
+        return render_template('entries.html',
+            entries=entries,
+            pagination=pagination,
+            form=form,
+            endpoint=endpoint,
+            q=q,
+            search_order=search_order,
+            specialty=specialty,
+            note_part=note_part,
+            note_type=note_type,
+            profile_display_type=profile_display_type)
+
 
 @routes.route('/add', methods=['GET', 'POST'])
 def add_entry():
@@ -188,16 +207,7 @@ def add_entry():
         note_part_tag = form.note_part.data
         remember_tags = form.remember_tags.data
 
-        tags = []
-        if specialty_tag:
-            for tag in specialty_tag:
-                tags.append(tag)
-        if note_type_tag:
-            for tag in note_type_tag:
-                tags.append(tag)
-        if note_part_tag:
-            for tag in note_part_tag:
-                tags.append(tag)
+        tags = flatten_tags(specialty_tag, note_type_tag, note_part_tag)
         tags = sorted(tags)
         tags = ', '.join(tags)
 
@@ -220,14 +230,57 @@ def show_users():
     users = User.query.all()
     return render_template('users.html', users=users)
 
+
+
+
+def flatten_tags(*args):
+    tags = []
+    for arg in args:
+        if arg:
+            for tag in arg:
+                tags.append(tag)
+    return tags
+
+def apply_query_string(entries, q):
+    if q:
+        entries = entries.filter((Entry.description.contains(q)) \
+            | (Entry.template.contains(q)))
+    else:
+        entries = Entry.query
+    return entries
+
+def apply_tags(entries, tags):
+    if tags:
+        for tag in tags:
+            entries = entries.filter(Entry.tags.contains(tag))
+    return entries
+
+def paginate_results(entries, search_order, page):
+    if search_order == 'saves':
+        pagination = entries.order_by(desc(Entry.num_user_saves)).paginate(page, per_page=30, error_out=False)
+    else:
+        pagination = entries.order_by(desc(Entry.time_created)).paginate(page, per_page=30, error_out=False)
+    return pagination
+
+def generate_entry_query(entries):
+    entry_ids = []
+    for entry in entries:
+        entry_ids.append(entry.id)
+    return Entry.query.filter(Entry.id.in_(entry_ids))
+
 @routes.route('/view_profile/<username>', methods=['GET', 'POST'])
 def view_profile(username):
     # this will delete entries if delete button is pressed
     form = UserProfileToggle()
     if form.validate_on_submit():
-        display_type = form.display_type.data
-        user = User.query.filter(User.name==username).first()
-        return redirect(url_for('routes.view_profile', username=username, display_type=display_type))
+        profile_display_type = form.profile_display_type.data
+        search_query = form.search_query.data
+        search_order = form.search_order.data
+        specialty = form.specialty.data
+        note_type = form.note_type.data
+        note_part = form.note_part.data
+        return redirect(url_for('routes.view_profile', username=username, profile_display_type=profile_display_type, q=search_query, search_order=search_order, specialty=specialty, note_type=note_type, note_part=note_part))
+
     if request.method == "POST":
         print("success");
         entry_id = int(request.form['entry_id'])
@@ -250,7 +303,14 @@ def view_profile(username):
             raise KeyError
         return json.dumps({'status':'OK'});
     else:
-        display_type = request.args.get('display_type', 'Submitted')
+        q = request.args.get('q')
+        search_order = request.args.get('search_order')
+        specialty = request.args.getlist('specialty')
+        note_part = request.args.getlist('note_part')
+        note_type = request.args.getlist('note_type')
+        page = request.args.get('page', 1, type=int)
+        profile_display_type = request.args.get('profile_display_type', 'Submitted')
+
         if current_user.is_anonymous or current_user.name != username:
             current = False
             user = User.query.filter(User.name == username).one()
@@ -262,13 +322,18 @@ def view_profile(username):
         specialty = user.specialty
         institution = user.institution
         profession = user.profession
-        user_entries = user.submissions
-        saved_entries = user.saved_entries
-        form.display_type.data = display_type
-        if display_type == 'Submitted':
+        user_entries = generate_entry_query(user.submissions)
+        saved_entries = generate_entry_query(user.saved_entries)
+        endpoint = '.view_profile'
+
+        form.profile_display_type.data = profile_display_type
+        if profile_display_type == 'Submitted':
             username_display = "{} - submitted entries".format(username)
+            pagination = paginate_results(user_entries, False, page)
             return render_template('user_profile.html',
-                user_entries=user_entries,
+                pagination=pagination,
+                endpoint=endpoint,
+                entries=user_entries,
                 username_display=username_display,
                 username=username,
                 specialty=specialty,
@@ -277,9 +342,12 @@ def view_profile(username):
                 current=current,
                 form=form)
         else:
+            pagination = paginate_results(saved_entries, False, page)
             username_display = "{} - saved entries".format(username)
             return render_template('user_saves.html',
-                saved_entries=saved_entries,
+                pagination=pagination,
+                endpoint=endpoint,
+                entries=saved_entries,
                 username_display=username_display,
                 username=username,
                 specialty=specialty,
