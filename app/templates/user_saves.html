@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block page_content %}
 {% import "bootstrap/wtf.html" as wtf %}
-<h1>{{ username }}</h1>
+<h1>{{ username_display }}</h1>
 <div class="container">
   <span>Profession: {{ profession }}</span><br>
   {% if specialty %}<span>Specialty: {{ specialty }}</span><br>{% endif %}
@@ -19,7 +19,7 @@
     <th>Saves</th>
   </tr>
   {% for entry in saved_entries %}
-  <tr>
+  <tr id="{{ entry.id }}">
     <td>{{ moment(entry.time_created).fromNow(refresh=True) }}
     <td>{{ entry['description'] }}</td>{% if entry.too_long %}
     <td><span id="template-{{ entry.id }}">{{ entry.template_display }}</span><a class="expand_link" id="template-{{ entry.id }}">...(show more)</a></td>{% else %}
@@ -28,7 +28,7 @@
     <td>{% if entry.tags %}{% for tag in entry.tags.split(',') %}<span>{{ tag }}</span>{% endfor %}{% else %}None{% endif %}</td>
     <td class="num_saves" id="{{ entry.id }}">{{ entry.num_user_saves }}</td>
     <td class="buttons">{% if current %}
-      <button class="delete_button user_entries btn btn-default" id="{{ entry.id }}">Delete</button>{% elif current_user.is_authenticated %}
+      <button class="delete_button user_entries btn btn-default" id="{{ entry.id }}">Remove</button>{% elif current_user.is_authenticated %}
       <button type="button" class="btn btn-default save button" id="{{ entry.id }}">Save</button>{% endif %}
       {% if entry.too_long %}<button type="button" class="disabled too_long btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>
       {% else %}<button type="button" class="btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>{% endif %}

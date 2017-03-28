@@ -18,7 +18,7 @@
     <th>Saves</th>
   </tr>
   {% for entry in user_entries %}
-  <tr>
+  <tr id="{{ entry.id }}">
     <td>{{ moment(entry.time_created).fromNow(refresh=True) }}
     <td>{{ entry['description'] }}</td>{% if entry.too_long %}
     <td><span id="template-{{ entry.id }}">{{ entry.template_display }}</span><a class="expand_link" id="template-{{ entry.id }}">...(show more)</a></td>{% else %}

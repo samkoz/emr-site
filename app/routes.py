@@ -90,7 +90,7 @@ def show_entries():
         if "save_entry" in request_type:
             entry_id = int(request.form["save_entry"])
             entry = Entry.query.filter(Entry.id == entry_id).one()
-            user = User.query.filter(User.name == session['user']).one()
+            user = User.query.filter(User.name == current_user.name).one()
             print(entry)
             print(user)
             message = ""
@@ -237,7 +237,7 @@ def view_profile(username):
             entry.delete()
             db.session.commit()
         elif entry_type == 'saved':
-            user = User.query.filter(User.name == session['user']).one()
+            user = User.query.filter(User.name == current_user.name).first()
             entry = entry.one()
             print(user)
             saved_entries = user.saved_entries
@@ -255,15 +255,10 @@ def view_profile(username):
             current = False
             user = User.query.filter(User.name == username).one()
             username = user.name
-            if username[-1] == 's':
-                username_display = username + "' profile"
-            else:
-                username_display = username + "'s profile"
         else:
             user = current_user
             username = user.name
             current = True
-            username_display = 'Your profile'
         specialty = user.specialty
         institution = user.institution
         profession = user.profession
@@ -271,6 +266,7 @@ def view_profile(username):
         saved_entries = user.saved_entries
         form.display_type.data = display_type
         if display_type == 'Submitted':
+            username_display = "{} - submitted entries".format(username)
             return render_template('user_profile.html',
                 user_entries=user_entries,
                 username_display=username_display,
@@ -281,6 +277,7 @@ def view_profile(username):
                 current=current,
                 form=form)
         else:
+            username_display = "{} - saved entries".format(username)
             return render_template('user_saves.html',
                 saved_entries=saved_entries,
                 username_display=username_display,
