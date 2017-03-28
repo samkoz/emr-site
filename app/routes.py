@@ -6,6 +6,42 @@ from .forms import LogginForm, SignUpForm, AddEntryForm, SearchForm, UserProfile
 
 routes = Blueprint('routes', __name__, template_folder='templates')
 
+def flatten_tags(*args):
+    tags = []
+    for arg in args:
+        if arg:
+            for tag in arg:
+                tags.append(tag)
+    return tags
+
+def apply_query_string(entries, q):
+    if q:
+        entries = entries.filter((Entry.description.contains(q)) \
+            | (Entry.template.contains(q)))
+    else:
+        entries = Entry.query
+    return entries
+
+def apply_tags(entries, tags):
+    if tags:
+        for tag in tags:
+            entries = entries.filter(Entry.tags.contains(tag))
+    return entries
+
+def paginate_results(entries, search_order, page):
+    if search_order == 'saves':
+        pagination = entries.order_by(desc(Entry.num_user_saves)).paginate(page, per_page=30, error_out=False)
+    else:
+        pagination = entries.order_by(desc(Entry.time_created)).paginate(page, per_page=30, error_out=False)
+    return pagination
+
+def generate_entry_query(entries):
+    entry_ids = []
+    for entry in entries:
+        entry_ids.append(entry.id)
+    return Entry.query.filter(Entry.id.in_(entry_ids))
+
+
 @routes.route('/')
 def show_landing():
     return render_template('landing.html')
@@ -72,36 +108,6 @@ def show_sign_up():
         professions = ['Physician', 'Nurse Practitioner', 'Physicians Assistant']
         return render_template('sign_up.html', form=form, professions=professions)
 
-
-def flatten_tags(*args):
-    tags = []
-    for arg in args:
-        if arg:
-            for tag in arg:
-                tags.append(tag)
-    return tags
-
-def apply_query_string(entries, q):
-    if q:
-        entries = entries.filter((Entry.description.contains(q)) \
-            | (Entry.template.contains(q)))
-    else:
-        entries = Entry.query
-    return entries
-
-def apply_tags(entries, tags):
-    if tags:
-        for tag in tags:
-            entries = entries.filter(Entry.tags.contains(tag))
-    return entries
-
-def paginate_results(entries, search_order, page):
-    if search_order == 'saves':
-        pagination = entries.order_by(desc(Entry.num_user_saves)).paginate(page, per_page=30, error_out=False)
-    else:
-        pagination = entries.order_by(desc(Entry.time_created)).paginate(page, per_page=30, error_out=False)
-    return pagination
-
 @routes.route('/show_entries', methods=['GET', 'POST'])
 def show_entries():
     form = SearchForm()
@@ -161,6 +167,7 @@ def show_entries():
         note_type = request.args.getlist('note_type')
         page = request.args.get('page', 1, type=int)
         profile_display_type = request.args.get('profile_display_type')
+        username = request.args.get('username')
 
         tags = flatten_tags(specialty, note_type, note_part)
 
@@ -233,40 +240,7 @@ def show_users():
 
 
 
-def flatten_tags(*args):
-    tags = []
-    for arg in args:
-        if arg:
-            for tag in arg:
-                tags.append(tag)
-    return tags
 
-def apply_query_string(entries, q):
-    if q:
-        entries = entries.filter((Entry.description.contains(q)) \
-            | (Entry.template.contains(q)))
-    else:
-        entries = Entry.query
-    return entries
-
-def apply_tags(entries, tags):
-    if tags:
-        for tag in tags:
-            entries = entries.filter(Entry.tags.contains(tag))
-    return entries
-
-def paginate_results(entries, search_order, page):
-    if search_order == 'saves':
-        pagination = entries.order_by(desc(Entry.num_user_saves)).paginate(page, per_page=30, error_out=False)
-    else:
-        pagination = entries.order_by(desc(Entry.time_created)).paginate(page, per_page=30, error_out=False)
-    return pagination
-
-def generate_entry_query(entries):
-    entry_ids = []
-    for entry in entries:
-        entry_ids.append(entry.id)
-    return Entry.query.filter(Entry.id.in_(entry_ids))
 
 @routes.route('/view_profile/<username>', methods=['GET', 'POST'])
 def view_profile(username):

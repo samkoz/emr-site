@@ -41,26 +41,10 @@
   </tr>
   {% endfor %}
 </table>
-
-
 {% block pagination scoped %}
-<div class="pagination">
-  {{ macros.pagination_widget(pagination,
-      endpoint,
-      username=username,
-      q=q,
-      search_order=search_order,
-      specialty=specialty,
-      note_part=note_part,
-      note_type=note_type,
-      profile_display_type=profile_display_type)
-  }}
-</div>
+{{ super() }}
 {% endblock %}
-
-
-{% endblock %}
-
+{% endblock page_content %}
 {% block scripts %}
 {{ super() }}
 {% endblock %}
