@@ -27,6 +27,7 @@ $(document).ready(function(){
   $(".save.button").click(function(){
     console.log("button clicked");
     var entry_id = this.id;
+    console.log(entry_id)
 
     $.ajax({
       url: '/show_entries',
@@ -39,10 +40,11 @@ $(document).ready(function(){
         var message = data[0]
         var num_saves = data[1]
         console.log(message)
+        console.log(num_saves)
         if (status == 'Error') {
             alert(message)
         } else {
-          $( "td.num_saves#" + entry_id).text(function(){
+          $( ".num_saves#" + entry_id).text(function(){
             return num_saves;
           })
         }

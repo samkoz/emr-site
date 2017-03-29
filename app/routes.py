@@ -6,6 +6,26 @@ from .forms import LogginForm, SignUpForm, AddEntryForm, SearchForm, UserProfile
 
 routes = Blueprint('routes', __name__, template_folder='templates')
 
+
+def get_args_and_redirect(form, username=None):
+    search_query = form.search_query.data
+    search_order = form.search_order.data
+    specialty = form.specialty.data
+    note_type = form.note_type.data
+    note_part = form.note_part.data
+    if username:
+        profile_display_type = form.profile_display_type.data
+        return redirect(url_for('routes.view_profile',
+            username=username,
+            profile_display_type=profile_display_type,
+            q=search_query, search_order=search_order,
+            specialty=specialty,
+            note_type=note_type,
+            note_part=note_part))
+    else:
+        return redirect(url_for('routes.show_entries', username=username, q=search_query, search_order=search_order,
+            specialty=specialty, note_type=note_type, note_part=note_part))
+
 def flatten_tags(*args):
     tags = []
     for arg in args:
@@ -108,18 +128,15 @@ def show_sign_up():
         professions = ['Physician', 'Nurse Practitioner', 'Physicians Assistant']
         return render_template('sign_up.html', form=form, professions=professions)
 
+
+
 @routes.route('/show_entries', methods=['GET', 'POST'])
 def show_entries():
     form = SearchForm()
     entry_list = []
     if form.validate_on_submit():
-        search_query = form.search_query.data
-        search_order = form.search_order.data
-        specialty = form.specialty.data
-        note_type = form.note_type.data
-        note_part = form.note_part.data
-        return redirect(url_for('routes.show_entries', q=search_query, search_order=search_order,
-            specialty=specialty, note_type=note_type, note_part=note_part))
+        response = get_args_and_redirect(form)
+        return response
 
     if request.method == "POST":
         request_type = list(request.form.keys())
@@ -237,23 +254,13 @@ def show_users():
     users = User.query.all()
     return render_template('users.html', users=users)
 
-
-
-
-
-
 @routes.route('/view_profile/<username>', methods=['GET', 'POST'])
 def view_profile(username):
     # this will delete entries if delete button is pressed
     form = UserProfileToggle()
     if form.validate_on_submit():
-        profile_display_type = form.profile_display_type.data
-        search_query = form.search_query.data
-        search_order = form.search_order.data
-        specialty = form.specialty.data
-        note_type = form.note_type.data
-        note_part = form.note_part.data
-        return redirect(url_for('routes.view_profile', username=username, profile_display_type=profile_display_type, q=search_query, search_order=search_order, specialty=specialty, note_type=note_type, note_part=note_part))
+        response = get_args_and_redirect(form, username)
+        return response
 
     if request.method == "POST":
         print("success");
@@ -278,7 +285,7 @@ def view_profile(username):
         return json.dumps({'status':'OK'});
     else:
         q = request.args.get('q')
-        search_order = request.args.get('search_order')
+        search_order = request.args.get('search_order', 'submission_time')
         specialty = request.args.getlist('specialty')
         note_part = request.args.getlist('note_part')
         note_type = request.args.getlist('note_type')
@@ -293,39 +300,44 @@ def view_profile(username):
             user = current_user
             username = user.name
             current = True
-        specialty = user.specialty
-        institution = user.institution
-        profession = user.profession
-        user_entries = generate_entry_query(user.submissions)
-        saved_entries = generate_entry_query(user.saved_entries)
+
+        tags = flatten_tags(specialty, note_type, note_part)
+        if profile_display_type == 'Submitted':
+            entries = generate_entry_query(user.submissions)
+            username_display = "{} - submitted entries".format(username)
+        else:
+            entries = generate_entry_query(user.saved_entries)
+            username_display = "{} - saved entries".format(username)
+
+        entries = apply_query_string(entries, q)
+        entries = apply_tags(entries, tags)
+        pagination = paginate_results(entries, search_order, page)
+        entries = pagination.items
+
+        # preserve form values
+        if search_order:
+            form.search_order.data = search_order
+        else:
+            form.search_order.data = 'submission_time'
+        form.specialty.data = specialty
+        form.note_part.data = note_part
+        form.note_type.data = note_type
+        form.profile_display_type.data = profile_display_type
+        form.search_order.data = search_order
+        form.search_query.data = q
         endpoint = '.view_profile'
 
-        form.profile_display_type.data = profile_display_type
-        if profile_display_type == 'Submitted':
-            username_display = "{} - submitted entries".format(username)
-            pagination = paginate_results(user_entries, False, page)
-            return render_template('user_profile.html',
-                pagination=pagination,
-                endpoint=endpoint,
-                entries=user_entries,
-                username_display=username_display,
-                username=username,
-                specialty=specialty,
-                profession=profession,
-                institution=institution,
-                current=current,
-                form=form)
-        else:
-            pagination = paginate_results(saved_entries, False, page)
-            username_display = "{} - saved entries".format(username)
-            return render_template('user_saves.html',
-                pagination=pagination,
-                endpoint=endpoint,
-                entries=saved_entries,
-                username_display=username_display,
-                username=username,
-                specialty=specialty,
-                profession=profession,
-                institution=institution,
-                current=current,
-                form=form)
+        return render_template('user_profile.html',
+            pagination=pagination,
+            endpoint=endpoint,
+            entries=entries,
+            username_display=username_display,
+            user=user,
+            current=current,
+            form=form,
+            q=q,
+            search_order=search_order,
+            specialty=specialty,
+            note_part=note_part,
+            note_type=note_type,
+            profile_display_type=profile_display_type)

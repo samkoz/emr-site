@@ -5,12 +5,13 @@
 {% block profile %}
 <div class="container">
   <h3>User Information</h3>
-  <span>Profession: {{ profession }}</span><br>
-  {% if specialty %}<span>Specialty: {{ specialty }}</span><br>{% endif %}
-  {% if institution %}<span>Institution: {{ institution }}</span><br>{% endif %}<br>
+  <span>Profession: {{ user.profession }}</span><br>
+  {% if user.specialty %}<span>Specialty: {{ user.specialty }}</span><br>{% endif %}
+  {% if user.institution %}<span>Institution: {{ user.institution }}</span><br>{% endif %}<br>
 </div>
 {% endblock profile %}
 
+<form class="container" action="{{ url_for('routes.view_profile', username=user.name) }}" method="POST">
 {% block form_block %}
 {{ form.profile_display_type }}<br>
 {{ super() }}
@@ -18,21 +19,22 @@
 
 <table class="table" id="entry_tables">
   <tr>
-    {% block table_headers %}
     <th>Date</th>
     <th>Description</th>
     <th>Smartpharse</th>
+    {% if profile_display_type is equalto "Saved" %}<th>User</th>{% endif %}
     <th>Tags</th>
     <th>Saves</th>
-    {% endblock table_headers %}
   </tr>
   {% for entry in entries %}
   <tr id='{{ entry.id }}'>
     {% block first_table_cols scoped %}{{ super() }}{% endblock first_table_cols %}
-    {% block last_table_cols scoped %}{{ super() }}{% endblock last_table_cols %}
+    {% if profile_display_type is equalto "Saved" %}<td><a href="{{ entry.user.url }}" class="profile_redirect">{{ entry.user.name }}</td>{% endif %}
+    <td>{% if entry.tags %}{% for tag in entry.tags.split(',') %}<span>{{ tag }}</span>{% endfor %}{% else %}None{% endif %}</td>
+    <td class="num_saves" id="{{ entry.id }}">{{ entry.num_user_saves }}</td>
     {% block buttons_block scoped %}
     <td>{% if current %}
-      <button class="delete_button user_entries btn btn-default" id="{{ entry.id }}">Delete</button>{% elif current_user.is_authenticated %}
+      <button class="delete_button user_entries btn btn-default" id="{{ entry.id }}">{% if profile_display_type is equalto "Saved" %}Remove{% else %}Delete{% endif %}</button>{% elif current_user.is_authenticated %}
       <button type="button" class="btn btn-default save button" id="{{ entry.id }}">Save</button>{% endif %}
       {% if entry.too_long %}<button type="button" title="will be disabled until you click 'show more'" class="disabled too_long btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>
       {% else %}<button type="button" class="btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>{% endif %}
@@ -41,8 +43,18 @@
   </tr>
   {% endfor %}
 </table>
+
 {% block pagination scoped %}
-{{ super() }}
+<div class="pagination">
+  {{ macros.pagination_widget_profile(pagination, endpoint, user,
+      q=q,
+      search_order=search_order,
+      specialty=specialty,
+      note_part=note_part,
+      note_type=note_type,
+      profile_display_type=profile_display_type)
+  }}
+</div>
 {% endblock %}
 {% endblock page_content %}
 {% block scripts %}

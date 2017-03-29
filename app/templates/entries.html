@@ -5,8 +5,9 @@
 {% block page_content %}
 {% block user_name %}{% endblock user_name%}
 
-{% block form_block %}
+
 <form class="container" action="{{ url_for('routes.show_entries') }}" method="POST">
+  {% block form_block %}
   {{ form.hidden_tag() }}
   <div id="search-order-options">{{ form.search_order.label }} {{ form.search_order }}</div>
   {{ form.search_query.label }} {{ form.search_query }}<br><br>
@@ -17,19 +18,18 @@
     <div id="search_options_note_part">{{ form.note_part.label }}:<br>{{ form.note_part }}</div>
   </div><br>
   <div>{{ form.submit }}</div>
+  {% endblock form_block %}
 </form>
-{% endblock form_block %}
+
 
 <table class="table" id=entry_table>
   <tr>
-    {% block table_headers %}
     <th>Date</th>
     <th>Description</th>
     <th>Smartpharse</th>
     <th>User</th>
     <th>Tags</th>
     <th>Saves</th>
-    {% endblock table_headers%}
   </tr>
   {% for entry in entries %}
   <tr>
@@ -40,9 +40,8 @@
     <td id="template-{{ entry.id }}">{{ entry.template }}</td>{% endif %}
     {% endblock first_table_cols %}
     {% block user_block scoped %}<td><a href="{{ entry.user.url }}" class="profile_redirect">{{ entry.user.name }}</td>{% endblock user_block%}
-    {% block last_table_cols scoped %}
     <td>{% if entry.tags %}{% for tag in entry.tags.split(',') %}<span>{{ tag }}</span>{% endfor %}{% else %}None{% endif %}</td>
-    <td class="num_saves" id="{{ entry.id }}">{{ entry.num_user_saves }}</td>{% endblock last_table_cols %}
+    <td class="num_saves" id="{{ entry.id }}">{{ entry.num_user_saves }}</td>
     {% block buttons_block scoped %}<td id="{{ entry.id }} save_column">{% if current_user.is_authenticated %}
       <button type="button" class="btn btn-default save button" id="{{ entry.id }}">Save</button>{% endif %}{% if entry.too_long %}
       <button type="button" class="disabled too_long btn btn-default copybutton" data-clipboard-target="#template-{{ entry.id }}" id="template-{{ entry.id }}">Copy</button>{% else %}
