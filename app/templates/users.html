@@ -1,34 +1,54 @@
 {% extends "layout.html" %}
+{% import "_macros.html" as macros %}
+{% import "bootstrap/wtf.html" as wtf %}
 {% block title %}Users{% endblock %}
 {% block page_content %}
+{{ wtf.quick_form(form) }}
+{% if display_order == 'date_enrolled' %}
 <table class="table" id=entry_table>
-  <colgroup>
-    <col style="width:10%">
-    <col style="width:20%">
-    <col style="width:50%">
-    <col style="width:10%">
-    <col style="width:10%">
-  </colgroup>
   <tr>
     <th>Username</th>
     <th>Institution</th>
-    <th>Submissions</th>
     <th>Number of Submissions</th>
     <th>Num Saves</th>
+    <th>Member since</th>
   </tr>
-<tr>
-{% for user in users %}
-<td>{{ user.name }}</td>
-<td>{{ user.institution }} </td>
-<td>
-  {% for submission in user.submissions %}
-  <span style="font-weight:bold">Entry Description: </span><span>{{ submission.description }}</span><br>
-  <span style="font-weight:bold">Smartphrase Template: </span><span>{{ submission.template }}</span><br><br>
+  {% for user in users %}
+  <tr>
+    <td><a href="{{ user.url }}">{{ user.name }}</td>
+    <td>{{ user.institution }} </td>
+    <td>{{ user.num_submissions() }}</td>
+    <td>{{ user.num_saved_entries() }}<td>
+    <td>{{ moment(user.time_enrolled).fromNow(refresh=True) }}</td>
+  </tr>
   {% endfor %}
-</td>
-<td>{{ user.num_submissions() }}</td>
-<td>{{ user.num_saved_entries() }}<td>
-</tr>
-{% endfor %}
 </table>
+{% endif %}
+{% if display_order == 'saves' %}
+<table class="table" id=entry_table>
+  <tr>
+    <th>Username</th>
+    <th>Institution</th>
+    <th>Number of Submissions</th>
+    <th>Num Saves</th>
+    <th>Member since</th>
+  </tr>
+  {% for user in users %}
+  <tr>
+    <td><a href="{{ user.url }}">{{ user.name }}</td>
+    <td>{{ user.institution }} </td>
+    <td>{{ user.num_submissions() }}</td>
+    <td>{{ user.num_saved_entries() }}<td>
+    <td>{{ moment(user.time_enrolled).fromNow(refresh=True) }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<div class="pagination">
+  {{ macros.pagination_widget(pagination,
+      endpoint)
+  }}
+</div>
+
 {% endblock %}

@@ -87,7 +87,7 @@ class Entry(db.Model):
         seed()
         user_count = User.query.count()
         for i in range(count):
-            u = User.query.offset(randint(0, 10)).first()
+            u = User.query.offset(randint(0, user_count - 1)).first()
             p = Entry(description=forgery_py.lorem_ipsum.title(words_quantity=4),
                 template=forgery_py.lorem_ipsum.sentences(50),
                 time_created=forgery_py.date.date(True),

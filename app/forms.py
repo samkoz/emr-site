@@ -137,3 +137,11 @@ class SearchForm(Form):
 class UserProfileToggle(SearchForm):
     profile_display_type = RadioField(choices=[('Submitted', 'Submitted Entries'), ('Saved', 'Saved Entries')], default='Submitted')
     submit = SubmitField('Display Entries')
+
+class UserStatisticsForm(Form):
+    display_order = RadioField(choices=[('date_enrolled', 'Order by date enrolled'),
+        ('saves', 'Order users by the # saves their entries have received'),
+        ('submissions', 'Order users by number of submissions'),
+        ('institution', 'See submission statistics by institution')
+    ], validators=[Required()], default='date_enrolled')
+    submit = SubmitField('Display')
