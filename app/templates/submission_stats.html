@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as macros %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}Users{% endblock %}
+{% block page_content %}
+{{ wtf.quick_form(form) }}
+<table class="table" id='institution_stats'>
+  <tr>
+    <th>Username</th>
+    <th>Institution</th>
+    <th>Number of Submissions</th>
+    <th>Most Recent Submission</th>
+  </tr>
+  {% for sub in submission_order %}
+  <tr>
+    <td>{{sub[0].name}}</td>
+    <td>{{sub[0].institution}}</td>
+    <td>{{sub[1]}}</td>
+    <td>{{ moment(sub[0].submissions[0].time_created).fromNow(refresh=True)}}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

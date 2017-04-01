@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as macros %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}Users{% endblock %}
+{% block page_content %}
+{{ wtf.quick_form(form) }}
+<table class="table" id='institution_stats'>
+  <tr>
+    <th>Institution</th>
+    <th>Number of Submissions</th>
+    <th>Number of Users</th>
+  </tr>
+  {% for institution in institution_stats %}
+  <tr>
+    <td>{{institution[0]}}</td>
+    <td>{{institution[2]}}</td>
+    <td>{{institution[1]}}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -9,23 +9,19 @@
     <th>Username</th>
     <th>Institution</th>
     <th>Number of Submissions</th>
-    <th>Number of Submissions Saved</th>
+    <th>Number of Saves by Other Users</th>
+    <th>Average Saves per Submission</th>
     <th>Member since</th>
   </tr>
   {% for user in users %}
   <tr>
-    <td><a href="{{ user.url }}">{{ user.name }}</td>
-    <td>{{ user.institution }} </td>
-    <td>{{ user.num_submissions() }}</td>
-    <td>{{ user.num_saved_entries() }}</td>
-    <td>{{ moment(user.time_enrolled).fromNow(refresh=True) }}</td>
+    <td><a href="{{ user.url }}">{{ user[0].name }}</td>
+    <td>{{ user[0].institution }} </td>
+    <td>{{ user[0].num_submissions() }}</td>
+    <td>{{ user[1] }}</td>
+    <td>{{ user[1] / user[0].num_submissions() }}</td>
+    <td>{{ moment(user[0].time_enrolled).fromNow(refresh=True) }}</td>
   </tr>
   {% endfor %}
 </table>
-<div class="pagination">
-  {{ macros.pagination_widget(pagination,
-      endpoint)
-  }}
-</div>
-
 {% endblock %}

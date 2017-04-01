@@ -8,24 +8,20 @@
   <tr>
     <th>Username</th>
     <th>Institution</th>
+    <th>Specialty</th>
     <th>Number of Submissions</th>
-    <th>Number of Submissions Saved</th>
+    <th>Num of saves their submissions have received</th>
     <th>Member since</th>
   </tr>
   {% for user in users %}
   <tr>
     <td><a href="{{ user.url }}">{{ user.name }}</td>
     <td>{{ user.institution }} </td>
+    <td>{{ user.specialty }}</td>
     <td>{{ user.num_submissions() }}</td>
-    <td>{{ user.num_saved_entries() }}</td>
+    <td>{{ num_saves }}<td>
     <td>{{ moment(user.time_enrolled).fromNow(refresh=True) }}</td>
   </tr>
   {% endfor %}
 </table>
-<div class="pagination">
-  {{ macros.pagination_widget(pagination,
-      endpoint)
-  }}
-</div>
-
 {% endblock %}

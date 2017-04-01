@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as macros %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block title %}Users{% endblock %}
+{% block page_content %}
+{{ wtf.quick_form(form) }}
+<table class="table" id=entry_table>
+  <tr>
+    <th>Username</th>
+    <th>Institution</th>
+    <th>Specialty</th>
+    <th>Number of Submissions</th>
+    <th>Num of saves their submissions have received</th>
+    <th>Member since</th>
+  </tr>
+  {% for save in saves %}
+  <p>save</p>
+  {% endfor %}
+</table>
+{% endblock %}

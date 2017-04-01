@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, flash, Blueprint, session, json
 from flask_login import login_user, logout_user, current_user
-from sqlalchemy import desc, func
+from sqlalchemy import desc, func, distinct
 from collections import Counter
 from .db import db, Entry, User
 from .forms import LogginForm, SignUpForm, AddEntryForm, SearchForm, UserProfileToggle, UserStatisticsForm
@@ -258,37 +258,42 @@ def show_users():
         return redirect(url_for('routes.show_users', display_order=display_order))
 
     display_order = request.args.get('display_order', 'date_enrolled')
+    form.display_order.data = display_order
+    endpoint = 'routes.show_users'
 
     if display_order == 'date_enrolled':
-        pagination = User.query.order_by(User.time_enrolled).paginate(page, per_page=50, error_out=False)
+        pagination = User.query.order_by(desc(User.time_enrolled)).paginate(page, per_page=50, error_out=False)
         users = pagination.items
+        return render_template('users.html', form=form, users=users, endpoint=endpoint, pagination=pagination, display_order=display_order)
 
     # descending order of user saves
     # returns a keyedtuple that can accessed via integers / slices
     elif display_order == 'saves':
-        display = db.session.query(User, Entry.user_id, func.sum(Entry.num_user_saves).label('save_sums')).join(Entry).\
+        users = db.session.query(User, Entry.user_id, func.sum(Entry.num_user_saves).label('save_sums')).join(Entry).\
             group_by(Entry.user_id).\
             order_by(desc('save_sums'))
+        users = [(user[0], int(user[2])) for user in users]
+        return render_template('user_saves.html', form=form, users=users)
 
     # submissions by institution
     elif display_order == 'institution':
-        order_by_institution = db.session.query(User.institution, func.count(Entry.id).label('institution_count')).\
+        institution_stats = db.session.query(User.institution, func.count(distinct(User.id)).label('user_count'), func.count(Entry.id).label('entry_count')).\
             join(Entry).\
-            group_by(User.institution).order_by(desc('institution_count'))
+            group_by(User.institution).order_by(desc('entry_count'))
+        return render_template('institution_stats.html', form=form, institution_stats=institution_stats)
 
     # order by submissions
     else:
-        order_by_submissions = db.session.query(User, User.name, func.count(Entry.id).label('sub_count')).\
+        submission_order = db.session.query(User, func.count(Entry.id).label('sub_count')).\
             join(Entry).\
             group_by(User.name).order_by(desc('sub_count'))
+        return render_template('submission_stats.html', form=form, submission_order=submission_order)
+
 
     es = db.session.query(User, Entry.user_id, func.sum(Entry.num_user_saves).label('save_sums')).join(Entry).\
         group_by(Entry.user_id).\
         order_by(desc('save_sums'))
 
-    form.display_order.data = display_order
-    endpoint = 'routes.show_users'
-    return render_template('users.html', form=form, users=users, endpoint=endpoint, pagination=pagination, display_order=display_order)
 
 @routes.route('/view_profile/<username>', methods=['GET', 'POST'])
 def view_profile(username):
