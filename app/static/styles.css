@@ -34,6 +34,11 @@ a.expand_link {
   width: 33%;
 }
 
+span.clear {
+  clear:left;
+  display:block;
+}
+
 .text_submit {
   white_space: pre-wrap;
 }

@@ -3,5 +3,20 @@
 {% block title %}Submit New Smartphrases{% endblock %}
 {% block page_content %}
 <h1>Submit Smartphrases</h1>
-{{ wtf.quick_form(form) }}
+<form action="{{ url_for('routes.add_entry') }}" method="POST">
+  <div class="form-group">
+    {{ form.hidden_tag() }}
+    {{ form.description.label }} {{ form.description(**{'class':'form-control', 'required':'true'}) }}
+    {{ form.template.label }} {{ form.template(**{'class':'form-control', 'required':'true'}) }}<br>
+    {{ form.remember_tags.label }} {{form.remember_tags(type="checkbox")}}
+    <h3>Add tags:</h3>
+    <div id="search_options">
+      <div id='search_options_specialty'>{{form.specialty.label}}:<br>{{ form.specialty(class='checkbox') }}</div>
+      <div id="search_options_note_type">{{ form.note_type.label }}:<br>{{ form.note_type(class='checkbox') }}</div>
+      <div id="search_options_note_part">{{ form.note_part.label }}:<br>{{ form.note_part(class='checkbox') }}</div>
+      <span class="clear"></span>
+    </div>
+    {{ form.submit(**{'type':'submit', 'class':'btn'}) }}
+  </div>
+</form>
 {% endblock %}

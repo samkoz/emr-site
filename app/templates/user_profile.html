@@ -13,7 +13,8 @@
 
 <form class="container" action="{{ url_for('routes.view_profile', username=user.name) }}" method="POST">
 {% block form_block %}
-{{ form.profile_display_type }}<br>
+<h4>Browse the smartphrases {{user.name}} has submitted or saved</h4>
+{{ form.profile_display_type(class='radio') }}<br>
 {{ super() }}
 {% endblock form_block%}
 

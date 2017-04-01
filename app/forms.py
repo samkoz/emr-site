@@ -1,8 +1,12 @@
 from flask_wtf import Form
 from flask import request
 from wtforms import StringField, SubmitField, TextAreaField, \
-    PasswordField, BooleanField, RadioField, SelectMultipleField
+    PasswordField, BooleanField, RadioField, SelectMultipleField, widgets
 from wtforms.validators import Required, EqualTo, Length
+
+class MultiCheckboxField(SelectMultipleField):
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
 
 class LogginForm(Form):
     name = StringField('Username:', validators=[Required()])
@@ -27,7 +31,7 @@ class AddEntryForm(Form):
     #title = StringField('Title:', validators=[Required()])
     description = StringField('Smartphrase Description:', validators=[Required(), Length(max=200)])
     template = TextAreaField('Smartphrase Template:', validators=[Required(), Length(max=65534)])
-    specialty = SelectMultipleField('Specialty', choices=[
+    specialty = MultiCheckboxField('Specialty', choices=[
         ('Cardiology', 'Cardiology'),
         ('Critical Care/ICU', 'Critical Care/ICU'),
         ('Dermatology', 'Dermatology'),
@@ -52,7 +56,7 @@ class AddEntryForm(Form):
         ('Transplant', 'Transplant'),
         ('Urology', 'Urology')
         ])
-    note_type = SelectMultipleField('Note Type', choices=[
+    note_type = MultiCheckboxField('Note Type', choices=[
         ('Code/Rapid Response', 'Code/Rapid Response'),
         ('Care Conference', 'Care Conference'),
         ('Consult', 'Consult'),
@@ -62,7 +66,7 @@ class AddEntryForm(Form):
         ('Progress Note', 'Progress Note'),
         ('Proccedure Note', 'Procedure Note')
         ])
-    note_part = SelectMultipleField('Note Component', choices=[
+    note_part = MultiCheckboxField('Note Component', choices=[
         ('Miscellaneous', 'Miscellaneous'),
         ('Lab Results', 'Lab Results'),
         ('HPI', 'HPI'),
@@ -83,7 +87,7 @@ class SearchForm(Form):
         ('submission_time', 'Most recent'),
         ('saves', 'Most saved')], validators=[Required()])
     search_query = StringField('Search')
-    specialty = SelectMultipleField('Specialty', choices=[
+    specialty = MultiCheckboxField('Specialty', choices=[
         ('Cardiology', 'Cardiology'),
         ('Critical Care/ICU', 'Critical Care/ICU'),
         ('Dermatology', 'Dermatology'),
@@ -108,7 +112,7 @@ class SearchForm(Form):
         ('Transplant', 'Transplant'),
         ('Urology', 'Urology')
         ])
-    note_type = SelectMultipleField('Note Type', choices=[
+    note_type = MultiCheckboxField('Note Type', choices=[
         ('Code/Rapid Response', 'Code/Rapid Response'),
         ('Care Conference', 'Care Conference'),
         ('Consult', 'Consult'),
@@ -119,7 +123,7 @@ class SearchForm(Form):
         ('Proccedure Note', 'Procedure Note')
 
         ])
-    note_part = SelectMultipleField('Note Component', choices=[
+    note_part = MultiCheckboxField('Note Component', choices=[
         ('Miscellaneous', 'Miscellaneous'),
         ('Lab Results', 'Lab Results'),
         ('HPI', 'HPI'),

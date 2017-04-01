@@ -8,16 +8,21 @@
 
 <form class="container" action="{{ url_for('routes.show_entries') }}" method="POST">
   {% block form_block %}
+  <div class="form-group">
   {{ form.hidden_tag() }}
-  <div id="search-order-options">{{ form.search_order.label }} {{ form.search_order }}</div>
-  {{ form.search_query.label }} {{ form.search_query }}<br><br>
-  <button type="button" class="btn btn-info" data-toggle="collapse" data-target="#search_options">Additional Search Options</button><br>
-  <div id="search_options" class="collapse">
-    <div id="search_options_specialty">{{ form.specialty.label }}:<br>{{ form.specialty }}</div>
-    <div id="search_options_note_type">{{ form.note_type.label }}:<br>{{ form.note_type }}</div>
-    <div id="search_options_note_part">{{ form.note_part.label }}:<br>{{ form.note_part }}</div>
-  </div><br>
-  <div>{{ form.submit }}</div>
+    <label for='search_query'>{{ form.search_query.label }}</label>
+    {{ form.search_query(class="form-control") }}<br>
+    <label for='search_order'>{{ form.search_order.label }}</label><br>
+    {{ form.search_order(class='radio-inline') }}<br>
+    {{ form.submit(**{'type':'submit', 'class':'btn'}) }}
+    <button type="button" class="btn" data-toggle="collapse" data-target="#search_options">Additional Search Options</button>
+    <div id="search_options" class="collapse">
+      <div id='search_options_specialty'>{{form.specialty.label}}:<br>{{ form.specialty(class='checkbox') }}</div>
+      <div id="search_options_note_type">{{ form.note_type.label }}:<br>{{ form.note_type(class='checkbox') }}</div>
+      <div id="search_options_note_part">{{ form.note_part.label }}:<br>{{ form.note_part(class='checkbox') }}</div>
+      <span class="clear"></span>
+    </div>
+  </div>
   {% endblock form_block %}
 </form>
 
